@@ -9,6 +9,7 @@ const offerService = require('./services/offerService');
 const lifecycleEngine = require('./services/lifecycleEngine');
 const optimizerService = require('./services/optimizerService');
 const scraperService = require('./services/scraperService');
+const flyerAnalyzerModel = require('./services/flyerAnalyzerModel');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -161,6 +162,18 @@ app.post('/api/offers/sync-scrape', async (req, res) => {
 
 app.get('/api/offers/sync-status', (req, res) => {
   res.json(scraperService.getLastSync());
+});
+
+// -------------------------------------------------------------
+// 7. AI FLYER ANALYZER MODEL & INGESTION
+// -------------------------------------------------------------
+app.post('/api/flyers/analyze', async (req, res) => {
+  const result = await flyerAnalyzerModel.analyzeFlyers();
+  res.json(result);
+});
+
+app.get('/api/flyers/stats', (req, res) => {
+  res.json(flyerAnalyzerModel.getStats());
 });
 
 // -------------------------------------------------------------

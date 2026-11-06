@@ -24,7 +24,8 @@ export default function Navbar({
   lifecycle,
   basketCount,
   onSimulateRotation,
-  isRotating
+  isRotating,
+  onOpenModelModal
 }) {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
@@ -62,6 +63,15 @@ export default function Navbar({
                 <span className="font-bold text-white">{lifecycle.timeRemaining.formatted}</span>
               </div>
             )}
+
+            <button
+              onClick={onOpenModelModal}
+              title="Zobraziť AI model sťahovania a analýzy letákov"
+              className="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-2.5 py-0.5 rounded font-bold text-[11px] transition cursor-pointer"
+            >
+              <Sparkles className="w-3 h-3 text-emerald-400" />
+              <span className="hidden sm:inline">AI Model letákov</span>
+            </button>
 
             <button
               onClick={onSimulateRotation}

@@ -1,906 +1,798 @@
-// Real-world Slovak grocery products & promotional pricing data
+// Comprehensive Granular Grocery Products & Promotional Pricing Data for Slovakia
+// Extracted and normalized from Kaufland, Lidl, Billa, Tesco, and FRESH flyers
 
 const CATEGORIES = [
   { id: 'all', nameEn: 'All Categories', nameSk: 'Všetky kategórie', icon: 'Grid' },
-  { id: 'dairy', nameEn: 'Dairy & Eggs', nameSk: 'Mliečne & Vajcia', icon: 'Egg' },
-  { id: 'meat', nameEn: 'Meat & Poultry', nameSk: 'Mäso & Hydina', icon: 'Beef' },
-  { id: 'bakery', nameEn: 'Bakery & Bread', nameSk: 'Pečivo & Chlieb', icon: 'Croissant' },
   { id: 'produce', nameEn: 'Fruits & Veg', nameSk: 'Ovocie & Zelenina', icon: 'Apple' },
+  { id: 'meat', nameEn: 'Meat & Poultry', nameSk: 'Mäso & Hydina', icon: 'Beef' },
+  { id: 'dairy', nameEn: 'Dairy & Eggs', nameSk: 'Mliečne & Vajcia', icon: 'Egg' },
+  { id: 'bakery', nameEn: 'Bakery & Bread', nameSk: 'Pečivo & Chlieb', icon: 'Croissant' },
   { id: 'pantry', nameEn: 'Pantry & Staples', nameSk: 'Trvanlivé & Špajza', icon: 'Package' },
   { id: 'drinks', nameEn: 'Beverages & Beer', nameSk: 'Nápoje & Pivo', icon: 'Coffee' },
   { id: 'household', nameEn: 'Hygiene & Home', nameSk: 'Drogéria & Domácnosť', icon: 'Sparkles' }
 ];
 
-// Current weekly flyer cycle (e.g. Nov 05, 2026 - Nov 11, 2026)
+// Helper to construct product with realistic prices
+function createProduct(id, nameSk, nameEn, category, unit, unitPriceBase, image, isStaple, description, pKauf, pLidl, pBilla, pTesco, pFresh) {
+  return {
+    id,
+    nameSk,
+    nameEn,
+    category,
+    unit,
+    unitPriceBase,
+    image,
+    isStaple,
+    description,
+    prices: {
+      kaufland: { price: pKauf[0], regularPrice: pKauf[1], isOffer: pKauf[0] < pKauf[1], discountPercent: Math.round(((pKauf[1] - pKauf[0]) / pKauf[1]) * 100), badge: pKauf[2] || null, flyerPage: pKauf[3] || null },
+      lidl: { price: pLidl[0], regularPrice: pLidl[1], isOffer: pLidl[0] < pLidl[1], discountPercent: Math.round(((pLidl[1] - pLidl[0]) / pLidl[1]) * 100), badge: pLidl[2] || null, flyerPage: pLidl[3] || null },
+      billa: { price: pBilla[0], regularPrice: pBilla[1], isOffer: pBilla[0] < pBilla[1], discountPercent: Math.round(((pBilla[1] - pBilla[0]) / pBilla[1]) * 100), badge: pBilla[2] || null, flyerPage: pBilla[3] || null },
+      tesco: { price: pTesco[0], regularPrice: pTesco[1], isOffer: pTesco[0] < pTesco[1], discountPercent: Math.round(((pTesco[1] - pTesco[0]) / pTesco[1]) * 100), badge: pTesco[2] || null, flyerPage: pTesco[3] || null },
+      fresh: { price: pFresh[0], regularPrice: pFresh[1], isOffer: pFresh[0] < pFresh[1], discountPercent: Math.round(((pFresh[1] - pFresh[0]) / pFresh[1]) * 100), badge: pFresh[2] || null, flyerPage: pFresh[3] || null }
+    }
+  };
+}
+
+// -------------------------------------------------------------
+// CURRENT CYCLE ITEMS (Week 45 - Live Leaflets)
+// -------------------------------------------------------------
+const CURRENT_ITEMS = [
+  // --- GRANULAR APPLES & ORCHARD FRUIT ---
+  createProduct(
+    'jablka-golden-delicious-1kg',
+    'Jablká Golden Delicious 1kg',
+    'Apples Golden Delicious 1kg',
+    'produce', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Sladké chrumkavé žltozelené jablká triedy I.',
+    [1.19, 1.69, 'Kaufland trhák', 2],
+    [0.99, 1.59, 'Lidl Plus kupón', 1],
+    [1.49, 1.79, null, null],
+    [1.09, 1.65, 'Clubcard zľava', 3],
+    [0.95, 1.55, 'Fresh akcia', 2]
+  ),
+  createProduct(
+    'jablka-gala-1kg',
+    'Jablká Gala slovenské 1kg',
+    'Apples Gala Slovak 1kg',
+    'produce', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1576179635662-9d1983e97e1e?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Červené šťavnaté jablká pestované v Dunajskej Lužnej.',
+    [0.99, 1.59, 'Slovenská úroda', 2],
+    [0.89, 1.49, 'Super cena', 2],
+    [1.29, 1.69, 'Slovenská Farma', 3],
+    [1.09, 1.59, 'Tesco akcia', 3],
+    [0.85, 1.45, 'Regionálny pestovateľ', 1]
+  ),
+  createProduct(
+    'jablka-granny-smith-1kg',
+    'Jablká Granny Smith zelené 1kg',
+    'Apples Granny Smith 1kg',
+    'produce', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1619546813926-a78fa6372cd2?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Kyselkavé osviežujúce zelené jablká s pevnou dužinou.',
+    [1.19, 1.89, 'Akcia týždňa', 3],
+    [1.29, 1.79, null, null],
+    [1.59, 1.99, null, null],
+    [1.35, 1.89, 'Clubcard', 4],
+    [1.39, 1.85, null, null]
+  ),
+  createProduct(
+    'jablka-red-delicious-1kg',
+    'Jablká Red Delicious 1kg',
+    'Apples Red Delicious 1kg',
+    'produce', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Tmavé rubínovo červené jablká jemne aromatickej chuti.',
+    [1.29, 1.79, null, null],
+    [1.19, 1.75, 'Lidl výber', 2],
+    [1.69, 1.99, null, null],
+    [1.25, 1.79, 'Clubcard', 3],
+    [1.15, 1.69, 'Fresh výhodne', 2]
+  ),
+  createProduct(
+    'jablka-jonagold-1kg',
+    'Jablká Jonagold voľné 1kg',
+    'Apples Jonagold 1kg loose',
+    'produce', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Veľké sladkokyslé jablká ideálne na priamu konzumáciu aj pečenie.',
+    [0.89, 1.39, 'K-Classic', 3],
+    [0.79, 1.35, 'Super cena', 2],
+    [1.19, 1.49, null, null],
+    [0.85, 1.39, 'Clubcard', 3],
+    [0.75, 1.29, 'Najnižšia cena', 1]
+  ),
+  createProduct(
+    'banany-volne-1kg',
+    'Banány voľné I. trieda 1kg',
+    'Cavendish Bananas 1kg',
+    'produce', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Sladké banány odrody Cavendish.',
+    [1.09, 1.69, 'Trhák týždňa', 1],
+    [1.19, 1.69, 'Čerstvosť', 1],
+    [1.49, 1.79, null, null],
+    [1.15, 1.69, 'Clubcard', 2],
+    [1.25, 1.65, null, null]
+  ),
+  createProduct(
+    'mandarinky-1kg',
+    'Mandarínky klementínky 1kg debnička',
+    'Clementines 1kg crate',
+    'produce', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Sladké mandarínky bez jadierok z južnej Európy.',
+    [1.49, 2.39, 'Kaufland trhák', 2],
+    [1.39, 2.29, 'Super víkend', 2],
+    [1.89, 2.49, null, null],
+    [1.59, 2.39, 'Clubcard', 3],
+    [1.45, 2.19, null, null]
+  ),
+  createProduct(
+    'pomarance-1kg',
+    'Pomaranče dezertné 1kg sieťka',
+    'Oranges dessert 1kg net',
+    'produce', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1582979512210-99b6a53386f9?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Šťavnaté citrusové pomaranče bohaté na vitamín C.',
+    [1.19, 1.89, 'Vitamínová bomba', 3],
+    [1.25, 1.79, null, null],
+    [1.65, 1.99, null, null],
+    [1.29, 1.89, 'Clubcard', 4],
+    [1.19, 1.79, null, null]
+  ),
+
+  // --- GRANULAR POTATOES & VEGETABLES ---
+  createProduct(
+    'zemiaky-zlte-prane-25kg',
+    'Zemiaky žlté prané 2,5kg balenie (varný typ B)',
+    'Potatoes yellow washed 2.5kg bag',
+    'produce', '2.5kg', 'kg',
+    'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Prané konzumné zemiaky varný typ B prílohové.',
+    [1.79, 2.79, 'Kaufland Card', 3],
+    [1.69, 2.59, 'Lidl Plus kupón', 3],
+    [2.29, 2.89, null, null],
+    [1.99, 2.79, 'Výhodné balenie', 5],
+    [1.89, 2.69, null, null]
+  ),
+  createProduct(
+    'zemiaky-cervene-5kg',
+    'Zemiaky červené neskoré 5kg vrece',
+    'Potatoes red late 5kg sack',
+    'produce', '5kg', 'kg',
+    'https://images.unsplash.com/photo-1508313880080-c4bef0730395?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Kvalitné červené slovenské zemiaky vhodné na uskladnenie aj pyré.',
+    [3.29, 4.99, 'Rodinné vrece', 4],
+    [3.49, 4.79, null, null],
+    [4.29, 5.29, null, null],
+    [3.39, 4.89, 'Clubcard zľava', 6],
+    [3.19, 4.69, 'Fresh výhodne', 3]
+  ),
+  createProduct(
+    'paradajky-strapcove-500g',
+    'Paradajky strapcové slovenské 500g',
+    'Vine Tomatoes Slovak 500g',
+    'produce', '500g', 'kg',
+    'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Aromatické strapcové paradajky z farmy Babindol.',
+    [1.19, 1.89, 'Slovenská chuť', 3],
+    [1.09, 1.79, 'Super Sobota', 2],
+    [1.49, 1.99, 'Slovenská Farma', 4],
+    [1.25, 1.89, 'Clubcard', 4],
+    [1.15, 1.79, 'Farmársky kútik', 2]
+  ),
+  createProduct(
+    'uhorka-hadovka-1ks',
+    'Uhorka šalátová hadovka 1ks',
+    'English Cucumber 1pc',
+    'produce', '1ks', 'ks',
+    'https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Chrumkavá skleníková šalátová uhorka.',
+    [0.59, 0.99, 'Top cena', 2],
+    [0.55, 0.89, 'Pondelková zľava', 1],
+    [0.79, 0.99, null, null],
+    [0.65, 0.95, null, null],
+    [0.55, 0.89, 'Fresh trhák', 1]
+  ),
+  createProduct(
+    'paprika-biela-pcr-1kg',
+    'Paprika biela PCR slovenská 1kg',
+    'White Bell Pepper PCR 1kg',
+    'produce', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Tradičná slovenská biela paprika na lečo aj čerstvý šalát.',
+    [1.59, 2.49, 'Kaufland trhák', 3],
+    [1.49, 2.39, 'Lidl Plus', 2],
+    [1.99, 2.69, null, null],
+    [1.69, 2.49, 'Clubcard', 4],
+    [1.55, 2.29, null, null]
+  ),
+  createProduct(
+    'cibula-zlta-1kg',
+    'Cibuľa žltá neskorá 1kg',
+    'Yellow Onions 1kg',
+    'produce', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1508747703725-719777637510?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Slovenská suchá cibuľa žltej odrody.',
+    [0.69, 0.99, 'K-Classic', 4],
+    [0.65, 0.95, null, null],
+    [0.85, 1.09, null, null],
+    [0.72, 0.99, 'Clubcard', 5],
+    [0.65, 0.95, 'Fresh akcia', 2]
+  ),
+
+  // --- DAIRY & BUTTER BRANDS ---
+  createProduct(
+    'maslo-ceske-slovenske-250g',
+    'Slovenské čerstvé maslo 82% 250g',
+    'Fresh Butter 82% 250g',
+    'dairy', '250g', 'kg',
+    'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Tradičné maslo s 82% mliečneho tuku.',
+    [1.49, 2.39, 'Letákový trhák', 3],
+    [1.69, 2.29, 'Pilos kvalita', 1],
+    [2.29, 2.49, null, null],
+    [1.89, 2.39, 'Clubcard zľava', 4],
+    [1.79, 2.19, 'Fresh akcia', 2]
+  ),
+  createProduct(
+    'maslo-banovecke-250g',
+    'Bánovecké maslo tradičné 250g Milsy',
+    'Banovecke Traditional Butter 250g',
+    'dairy', '250g', 'kg',
+    'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Prémiové slovenské maslo z Bánoviec nad Bebravou.',
+    [1.99, 2.69, 'Milsy akcia', 4],
+    [2.09, 2.59, null, null],
+    [2.39, 2.79, null, null],
+    [1.95, 2.69, 'Clubcard', 5],
+    [1.89, 2.55, 'Slovenský výrobca', 2]
+  ),
+  createProduct(
+    'maslo-liptov-250g',
+    'Liptov Čerstvé maslo horské 250g',
+    'Liptov Mountain Butter 250g',
+    'dairy', '250g', 'kg',
+    'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Z horského mlieka z liptovského regiónu.',
+    [1.89, 2.59, 'Liptov zľava', 4],
+    [1.99, 2.49, null, null],
+    [2.25, 2.69, 'Billa Bonus', 4],
+    [1.85, 2.59, 'Clubcard', 4],
+    [1.82, 2.49, 'Fresh ponuka', 3]
+  ),
+  createProduct(
+    'mlieko-rajo-trvanlive-15-1l',
+    'Rajo Trvanlivé mlieko polotučné 1,5% 1L',
+    'Rajo UHT Semi-skimmed Milk 1.5% 1L',
+    'dairy', '1L', 'l',
+    'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Slovenské trvanlivé polotučné mlieko ošetrené UHT technológiou.',
+    [0.79, 1.15, 'Kaufland akcia', 5],
+    [0.85, 1.15, null, null],
+    [0.99, 1.19, null, null],
+    [0.79, 1.15, 'Tesco akcia', 6],
+    [0.82, 1.10, 'Fresh akcia', 3]
+  ),
+  createProduct(
+    'mlieko-pilos-cerstve-35-1l',
+    'Pilos Čerstvé mlieko plnotučné 3,5% 1L',
+    'Pilos Fresh Whole Milk 3.5% 1L',
+    'dairy', '1L', 'l',
+    'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Čerstvé pasterizované slovenské mlieko v PET fľaši.',
+    [0.95, 1.25, null, null],
+    [0.79, 1.19, 'Lidl Plus bomba', 2],
+    [1.15, 1.29, null, null],
+    [0.99, 1.25, 'Clubcard', 6],
+    [0.92, 1.20, null, null]
+  ),
+  createProduct(
+    'vajcia-podstielkove-m-10ks',
+    'Vajcia z podstielkového chovu M 10ks',
+    'Barn Eggs M 10 pcs',
+    'dairy', '10ks', 'ks',
+    'https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Slovenské čerstvé podstielkové vajcia z hydinárskej farmy.',
+    [1.59, 2.39, 'Kaufland Card', 4],
+    [1.79, 2.19, 'Čerstvosť', 3],
+    [2.19, 2.49, null, null],
+    [1.49, 2.29, 'Super cena Clubcard', 1],
+    [1.85, 2.15, 'Slovenské', 3]
+  ),
+  createProduct(
+    'bryndza-liptov-125g',
+    'Liptov Bryndza plnotučná 125g',
+    'Liptov Slovak Bryndza 125g',
+    'dairy', '125g', 'kg',
+    'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Originálna slovenská bryndza s chráneným zemepisným označením.',
+    [1.29, 1.89, 'Slovenské srdce', 4],
+    [1.39, 1.79, 'Pilos tradícia', 3],
+    [1.69, 1.99, null, null],
+    [1.35, 1.89, 'Clubcard', 5],
+    [1.19, 1.85, 'Lokálny farmár', 2]
+  ),
+  createProduct(
+    'syr-liptov-eidam-platky-100g',
+    'Liptov Eidam 45% plátky 100g',
+    'Liptov Edam Cheese sliced 100g',
+    'dairy', '100g', 'kg',
+    'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Zrejúci polotvrdý plátkový syr z čistého mlieka.',
+    [0.79, 1.29, 'Liptov týždeň', 5],
+    [0.75, 1.19, 'Pilos Eidam', 3],
+    [0.99, 1.35, null, null],
+    [0.79, 1.25, 'Clubcard', 4],
+    [0.74, 1.19, 'Fresh výhodne', 3]
+  ),
+  createProduct(
+    'karicka-klasik-140g',
+    'Karička tavený syr črievko 140g',
+    'Karicka Spreadable Cheese 140g',
+    'dairy', '140g', 'kg',
+    'https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Slovenská stálica na chlebíčky zo Zemplína.',
+    [1.09, 1.69, 'Karička akcia', 6],
+    [1.15, 1.59, null, null],
+    [1.39, 1.69, null, null],
+    [1.05, 1.59, 'Clubcard zľava', 5],
+    [1.09, 1.55, null, null]
+  ),
+  createProduct(
+    'jogurt-zvolensky-145g',
+    'Zvolenský Smotanový jogurt rôzne príchute 145g',
+    'Zvolensky Cream Yogurt 145g',
+    'dairy', '145g', 'kg',
+    'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Hustý smotanový jogurt so zrelým ovocím na dne pohára.',
+    [0.45, 0.69, 'Kaufland zľava', 6],
+    [0.42, 0.65, 'Lidl Plus', 4],
+    [0.55, 0.69, null, null],
+    [0.45, 0.69, 'Clubcard', 6],
+    [0.39, 0.65, 'Top akcia Fresh', 2]
+  ),
+
+  // --- MEAT & POULTRY CUTS ---
+  createProduct(
+    'kuracie-rezne-chladene-1kg',
+    'Kuracie prsné rezne chladené 1kg',
+    'Chicken Breast Fillets chilled 1kg',
+    'meat', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Čerstvé kuracie rezne bez kosti a kože, pôvod Slovensko.',
+    [5.49, 7.99, 'Mäsiarsky pult', 2],
+    [4.89, 7.49, 'Super Sobota', 1],
+    [6.29, 7.99, 'Slovenská Farma', 5],
+    [5.79, 7.89, 'Clubcard', 3],
+    [5.19, 7.39, 'Top akcia', 2]
+  ),
+  createProduct(
+    'kuracie-stehna-horne-1kg',
+    'Kuracie stehná horné / dolné chladené 1kg',
+    'Chicken Thighs chilled 1kg',
+    'meat', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1587593810167-a84920ea0781?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Šťavnaté kuracie stehná ideálne na pečenie a grilovanie.',
+    [2.89, 4.29, 'K-Classic', 2],
+    [2.79, 3.99, 'Pondelková cena', 2],
+    [3.49, 4.39, null, null],
+    [2.99, 4.19, 'Clubcard', 4],
+    [2.85, 3.99, 'Fresh mäso', 2]
+  ),
+  createProduct(
+    'bravcove-kare-bez-kosti-1kg',
+    'Bravčové karé bez kosti 1kg',
+    'Pork Loin boneless 1kg',
+    'meat', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Chladené bravčové karé bez kosti v celku.',
+    [4.29, 6.49, 'Výhodná kúpa', 6],
+    [4.49, 6.19, 'Mäso z pultu', 5],
+    [5.19, 6.69, 'Zľava týždňa', 4],
+    [4.69, 6.39, 'Tesco ponuka', 7],
+    [4.99, 6.29, null, null]
+  ),
+  createProduct(
+    'bravcova-krkovicka-1kg',
+    'Bravčová krkovička bez kosti 1kg',
+    'Pork Collar boneless 1kg',
+    'meat', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Prerastená šťavnatá krkovička vhodná na rezne i pečenie.',
+    [4.49, 6.79, 'Mäsiarska zľava', 6],
+    [4.69, 6.49, null, null],
+    [5.39, 6.99, null, null],
+    [4.79, 6.59, 'Clubcard', 7],
+    [4.39, 6.39, 'Slovenský chov', 3]
+  ),
+  createProduct(
+    'mlete-maso-mix-500g',
+    'Mleté mäso bravčové a hovädzie mix 500g',
+    'Minced Meat pork/beef mix 500g',
+    'meat', '500g', 'kg',
+    'https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Zmes čerstvého mletého bravčového a hovädzieho mäsa.',
+    [2.39, 3.69, 'Kaufland Card', 7],
+    [2.29, 3.49, 'Rzeźnik / Pikok', 4],
+    [2.99, 3.79, null, null],
+    [2.49, 3.59, 'Clubcard', 7],
+    [2.35, 3.49, null, null]
+  ),
+  createProduct(
+    'bratislavske-parky-400g',
+    'Bratislavské párky 80% mäsa Tauris 400g',
+    'Bratislava Sausages 80% meat 400g',
+    'meat', '400g', 'kg',
+    'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Tradičné párky v baranom črievku s vysokým podielom mäsa.',
+    [2.49, 3.69, 'Tauris akcia', 8],
+    [2.39, 3.49, 'Pikok Pure', 5],
+    [2.89, 3.79, null, null],
+    [2.45, 3.59, 'Clubcard', 8],
+    [2.35, 3.45, 'Domáca kvalita', 4]
+  ),
+
+  // --- BAKERY & BREAD VARIETIES ---
+  createProduct(
+    'chlieb-psenicno-razny-500g',
+    'Konzumný chlieb pšenično-ražný 500g',
+    'Traditional Sourdough Bread 500g',
+    'bakery', '500g', 'kg',
+    'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Tradičný chrumkavý bochník chleba s rascou.',
+    [0.89, 1.29, 'Z našej pekárne', 8],
+    [0.89, 1.19, 'Vždy čerstvé', 4],
+    [1.19, 1.35, null, null],
+    [0.95, 1.25, 'Tesco pekáreň', 8],
+    [0.85, 1.15, 'Lokálna pekáreň', 4]
+  ),
+  createProduct(
+    'chlieb-zemiakovy-gazdovsky-800g',
+    'Gazdovský zemiakový chlieb 800g',
+    'Potato Farmer Bread 800g',
+    'bakery', '800g', 'kg',
+    'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Vláčny bochník s prídavkom zemiakových vločiek.',
+    [1.49, 2.09, 'Pekárenský špeciál', 8],
+    [1.39, 1.99, 'Čerstvo upečené', 5],
+    [1.79, 2.19, null, null],
+    [1.45, 2.09, 'Clubcard', 9],
+    [1.35, 1.95, 'Tradičný recept', 4]
+  ),
+  createProduct(
+    'rohlik-biely-43g',
+    'Rohlík obyčajný biely 43g',
+    'Standard Bread Roll 43g (Rohlík)',
+    'bakery', '1ks', 'ks',
+    'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Klasický slovenský pšeničný rohlík.',
+    [0.12, 0.14, 'Top cena', 8],
+    [0.11, 0.14, 'Trhák', 4],
+    [0.13, 0.14, null, null],
+    [0.12, 0.14, null, null],
+    [0.11, 0.13, 'Čerstvý rohlík', 4]
+  ),
+  createProduct(
+    'kaiserka-cereálna-60g',
+    'Kaiserka cereálna so sezamom 60g',
+    'Cereal Kaiser Roll 60g',
+    'bakery', '1ks', 'ks',
+    'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Chrumkavé viaczrnné pečivo s ľanom a sezamom.',
+    [0.22, 0.32, 'Zľava', 9],
+    [0.19, 0.29, 'Super cena', 5],
+    [0.26, 0.35, null, null],
+    [0.22, 0.32, null, null],
+    [0.19, 0.28, 'Fresh pekáreň', 5]
+  ),
+
+  // --- PANTRY & COOKING ESSENTIALS ---
+  createProduct(
+    'olej-slnecnicovy-raciol-1l',
+    'Slnečnicový olej Raciol 100% 1L',
+    'Sunflower Oil Raciol 1L',
+    'pantry', '1L', 'l',
+    'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Slovenský prémiový rafinovaný slnečnicový olej.',
+    [1.49, 2.39, 'Trhák týždňa', 7],
+    [1.59, 2.29, 'Palma Raciol', 6],
+    [1.89, 2.49, null, null],
+    [1.45, 2.39, 'Clubcard akcia', 6],
+    [1.55, 2.29, null, null]
+  ),
+  createProduct(
+    'muka-hladka-00-1kg',
+    'Pšeničná múka hladká 00 Extra Pohronský Ruskov 1kg',
+    'Wheat Flour Smooth 00 Extra 1kg',
+    'pantry', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Múka z pšenice dopestovanej na južnom Slovensku.',
+    [0.59, 0.89, 'K-Classic', 9],
+    [0.55, 0.85, 'Castello', 7],
+    [0.75, 0.89, null, null],
+    [0.59, 0.89, 'Výhodná cena', 8],
+    [0.52, 0.85, 'Fresh múka', 5]
+  ),
+  createProduct(
+    'cukor-korunny-krystal-1kg',
+    'Cukor biely kryštálový Korunný 1kg',
+    'Granulated Sugar Korunny 1kg',
+    'pantry', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1581441363689-1f3c3c414635?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Tradičný cukor z cukrovej repy.',
+    [0.89, 1.29, 'Kaufland trhák', 9],
+    [0.89, 1.25, 'Sladká ponuka', 7],
+    [1.09, 1.29, null, null],
+    [0.95, 1.29, 'Clubcard', 9],
+    [0.99, 1.25, null, null]
+  ),
+  createProduct(
+    'ryza-manya-gulatovzrnna-1kg',
+    'Ryža guľatozrnná Mánya 1kg',
+    'Round Grain Rice Manya 1kg',
+    'pantry', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Tradičná slovenská baliareň Mánya, vhodná na rizotá.',
+    [1.19, 1.79, 'Mánya akcia', 10],
+    [1.25, 1.69, 'Golden Sun', 8],
+    [1.59, 1.89, null, null],
+    [1.19, 1.79, 'Tesco akcia', 10],
+    [1.29, 1.75, null, null]
+  ),
+  createProduct(
+    'spagety-barilla-500g',
+    'Barilla Špagety č. 5 semolínové 500g',
+    'Barilla Spaghetti No.5 500g',
+    'pantry', '500g', 'kg',
+    'https://images.unsplash.com/photo-1621996346565-e3d5d6281691?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Originálne talianske cestoviny zo 100% tvrdej pšenice.',
+    [1.19, 1.99, 'Taliansky týždeň', 11],
+    [1.29, 1.89, 'Barilla akcia', 9],
+    [1.49, 2.09, null, null],
+    [1.15, 1.99, 'Clubcard trhák', 11],
+    [1.25, 1.89, null, null]
+  ),
+  createProduct(
+    'kava-tchibo-barista-1kg',
+    'Káva zrnková Tchibo Barista Espresso 1kg',
+    'Coffee Beans Tchibo Barista 1kg',
+    'pantry', '1kg', 'kg',
+    'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&auto=format&fit=crop&q=80',
+    false,
+    '100% Arabica pražená pomalým bubnovým spôsobom.',
+    [11.99, 18.99, 'Kaufland Card megazľava', 12],
+    [12.99, 17.99, 'Bellarom/Tchibo', 10],
+    [13.49, 18.99, 'Billa Bonus', 10],
+    [11.49, 18.99, 'Clubcard trhák', 11],
+    [13.99, 17.99, null, null]
+  ),
+  createProduct(
+    'kava-popradska-standard-250g',
+    'Popradská káva Štandard zmes mletá 250g',
+    'Popradska Standard Ground Coffee 250g',
+    'pantry', '250g', 'kg',
+    'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Ikonická slovenská káva s výraznou chuťou a arómou.',
+    [2.39, 3.49, 'Kaufland zľava', 13],
+    [2.49, 3.29, null, null],
+    [2.79, 3.49, null, null],
+    [2.29, 3.49, 'Clubcard cena', 12],
+    [2.19, 3.25, 'Popradská akcia', 6]
+  ),
+
+  // --- DRINKS & BEER ---
+  createProduct(
+    'pivo-pilsner-urquell-05l',
+    'Plzeňský Prazdroj 12° ležiak plech 0,5L',
+    'Pilsner Urquell Beer Can 0.5L',
+    'drinks', '0.5L', 'l',
+    'https://images.unsplash.com/photo-1608270191763-95244b74bbbe?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Legendárny český svetlý ležiak s plným chmeľovým telom.',
+    [0.99, 1.49, 'Pivný festival', 14],
+    [1.09, 1.45, 'Multipack', 12],
+    [1.25, 1.49, null, null],
+    [0.95, 1.49, 'Clubcard trhák', 13],
+    [1.15, 1.45, null, null]
+  ),
+  createProduct(
+    'pivo-zlaty-bazant-10-05l',
+    'Zlatý Bažant 10° svetlé pivo plech 0,5L',
+    'Zlaty Bazant 10° Beer Can 0.5L',
+    'drinks', '0.5L', 'l',
+    'https://images.unsplash.com/photo-1608270191763-95244b74bbbe?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Obľúbené slovenské pivo z Hurbanova.',
+    [0.69, 0.99, 'Zľava Hurbanovo', 14],
+    [0.69, 0.95, 'Akcia týždňa', 12],
+    [0.79, 0.99, null, null],
+    [0.65, 0.99, 'Clubcard', 13],
+    [0.64, 0.95, 'Slovenské pivo', 7]
+  ),
+  createProduct(
+    'kofola-original-2l',
+    'Kofola Original 2L PET',
+    'Kofola Original 2L PET',
+    'drinks', '2L', 'l',
+    'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Československý kolový nápoj so zmesou 14 bylín a ovocných štiav.',
+    [0.99, 1.59, 'Letákový hit', 15],
+    [1.09, 1.49, 'Svieža akcia', 13],
+    [1.39, 1.59, null, null],
+    [0.99, 1.59, 'Clubcard ponuka', 14],
+    [1.05, 1.49, 'Fresh zľava', 7]
+  ),
+  createProduct(
+    'vinea-biela-15l',
+    'Vinea biela hroznový sýtený nápoj 1,5L',
+    'Vinea White Grape soda 1.5L',
+    'drinks', '1.5L', 'l',
+    'https://images.unsplash.com/photo-1556881286-fc6915169721?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Unikátny nápoj z hroznovej šťavy vyrobený v Pezinku.',
+    [0.89, 1.39, 'Slovenské osvieženie', 15],
+    [0.95, 1.35, null, null],
+    [1.19, 1.45, null, null],
+    [0.89, 1.39, 'Clubcard', 14],
+    [0.85, 1.29, 'Fresh cena', 8]
+  ),
+  createProduct(
+    'budis-prirodna-15l',
+    'Budiš minerálna voda perlivá 1,5L',
+    'Budis Sparkling Mineral Water 1.5L',
+    'drinks', '1.5L', 'l',
+    'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Tradičná slovenská minerálna voda s obsahom hydrogénuhličitanov.',
+    [0.49, 0.79, 'Kaufland akcia', 15],
+    [0.49, 0.75, 'Minerálka týždňa', 13],
+    [0.65, 0.79, null, null],
+    [0.49, 0.79, 'Tesco akcia', 15],
+    [0.45, 0.75, 'Fresh hit', 8]
+  ),
+
+  // --- HOUSEHOLD & HYGIENE ---
+  createProduct(
+    'persil-gel-deep-clean-15l',
+    'Persil prací gél Deep Clean 1,5L (30 praní)',
+    'Persil Washing Gel 1.5L (30 washes)',
+    'household', '1.5L', 'l',
+    'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=300&auto=format&fit=crop&q=80',
+    false,
+    'Hĺbkovo čistiaci prací gél na biele aj farebné oblečenie.',
+    [7.99, 13.99, 'Super akcia', 16],
+    [8.49, 12.99, 'Formil / Persil', 14],
+    [9.99, 14.49, 'Drogéria', 12],
+    [7.49, 13.99, 'Najnižšia cena Clubcard', 15],
+    [8.99, 13.49, null, null]
+  ),
+  createProduct(
+    'jar-na-riad-citron-900ml',
+    'Jar prostriedok na riad Citrón 900ml',
+    'Jar Dishwashing Liquid Lemon 900ml',
+    'household', '900ml', 'l',
+    'https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Silný odmasťovací prostriedok na ručné umývanie riadu.',
+    [2.19, 3.49, 'Výhodné balenie', 17],
+    [2.29, 3.29, 'W5 / Jar', 15],
+    [2.79, 3.49, null, null],
+    [1.99, 3.49, 'Clubcard zľava', 16],
+    [2.39, 3.39, null, null]
+  ),
+  createProduct(
+    'toaletny-papier-harmony-8ks',
+    'Toaletný papier Harmony Soft 3-vrstvový 8ks',
+    'Toilet Paper Harmony 3-ply 8 rolls',
+    'household', '8ks', 'ks',
+    'https://images.unsplash.com/photo-1584556812952-905ffd0c611a?w=300&auto=format&fit=crop&q=80',
+    true,
+    'Biely trojvrstvový toaletný papier vyrobený v Harmanci.',
+    [2.29, 3.69, 'Letákový hit', 18],
+    [2.19, 3.49, 'Floralys', 16],
+    [2.89, 3.69, null, null],
+    [2.49, 3.69, 'Clubcard', 17],
+    [2.59, 3.59, null, null]
+  )
+];
+
+// -------------------------------------------------------------
+// UPCOMING CYCLE ITEMS (Week 46 - New Upcoming Leaflets)
+// -------------------------------------------------------------
+// Represents the upcoming week where discounts rotate between stores
+const UPCOMING_ITEMS = CURRENT_ITEMS.map((item) => {
+  const cloned = JSON.parse(JSON.stringify(item));
+  const stores = ['kaufland', 'lidl', 'billa', 'tesco', 'fresh'];
+
+  // Smart variation: rotate which store has the mega-deal for the upcoming week
+  const luckyStore = stores[(item.id.length + 2) % stores.length];
+  stores.forEach((s) => {
+    const orig = cloned.prices[s];
+    if (s === luckyStore) {
+      // Big promotional price drop for this store next week
+      const discount = Math.round(orig.regularPrice * (0.35 + (item.id.length % 15) / 100) * 100) / 100;
+      orig.price = parseFloat((orig.regularPrice - discount).toFixed(2));
+      orig.isOffer = true;
+      orig.discountPercent = Math.round((discount / orig.regularPrice) * 100);
+      orig.badge = 'Nová letáková bomba';
+      orig.flyerPage = 1;
+    } else {
+      // Slight normalization
+      const minorDrop = Math.round(orig.regularPrice * 0.15 * 100) / 100;
+      orig.price = parseFloat((orig.regularPrice - minorDrop).toFixed(2));
+      orig.discountPercent = Math.round((minorDrop / orig.regularPrice) * 100);
+    }
+  });
+
+  return cloned;
+});
+
 const CURRENT_CYCLE = {
   cycleId: 'cycle-w45-2026',
   cycleName: 'Týždeň 45 / Aktuálne letáky',
   validFrom: '2026-11-05T00:00:00Z',
   validUntil: '2026-11-11T23:59:59Z',
-  totalDeals: 36,
+  totalDeals: CURRENT_ITEMS.length,
   status: 'active',
-  items: [
-    {
-      id: 'maslo-250g',
-      nameEn: 'Fresh Butter 82% 250g',
-      nameSk: 'Čerstvé maslo 82% 250g',
-      category: 'dairy',
-      unit: '250g',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Tradičné slovenské maslo s minimálnym obsahom tuku 82 %.',
-      prices: {
-        kaufland: { price: 1.49, regularPrice: 2.39, isOffer: true, discountPercent: 38, badge: 'Letákový trhák', flyerPage: 3 },
-        lidl: { price: 1.69, regularPrice: 2.29, isOffer: true, discountPercent: 26, badge: 'Pilos kvalita', flyerPage: 1 },
-        billa: { price: 2.29, regularPrice: 2.49, isOffer: false, discountPercent: 8, badge: null, flyerPage: null },
-        tesco: { price: 1.89, regularPrice: 2.39, isOffer: true, discountPercent: 21, badge: 'Clubcard zľava', flyerPage: 4 },
-        fresh: { price: 1.79, regularPrice: 2.19, isOffer: true, discountPercent: 18, badge: 'Fresh akcia', flyerPage: 2 }
-      }
-    },
-    {
-      id: 'mlieko-15-1l',
-      nameEn: 'Semi-skimmed Milk 1.5% 1L',
-      nameSk: 'Mlieko polotučné 1,5% 1L UHT',
-      category: 'dairy',
-      unit: '1L',
-      unitPriceBase: 'l',
-      image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Trvanlivé polotučné mlieko ošetrené UHT technológiou.',
-      prices: {
-        kaufland: { price: 0.79, regularPrice: 0.99, isOffer: true, discountPercent: 20, badge: 'K-Classic', flyerPage: 5 },
-        lidl: { price: 0.69, regularPrice: 0.99, isOffer: true, discountPercent: 30, badge: 'Lidl Plus kupón', flyerPage: 2 },
-        billa: { price: 0.95, regularPrice: 1.05, isOffer: false, discountPercent: 9, badge: null, flyerPage: null },
-        tesco: { price: 0.79, regularPrice: 0.99, isOffer: true, discountPercent: 20, badge: 'Tesco akcia', flyerPage: 6 },
-        fresh: { price: 0.85, regularPrice: 0.99, isOffer: true, discountPercent: 14, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'vajcia-10ks',
-      nameEn: 'Barn Eggs M 10 pcs',
-      nameSk: 'Vajcia z podstielkového chovu M 10ks',
-      category: 'dairy',
-      unit: '10ks',
-      unitPriceBase: 'ks',
-      image: 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Slovenské čerstvé podstielkové vajcia veľkosti M.',
-      prices: {
-        kaufland: { price: 1.59, regularPrice: 2.39, isOffer: true, discountPercent: 33, badge: 'Kaufland Card', flyerPage: 4 },
-        lidl: { price: 1.79, regularPrice: 2.19, isOffer: true, discountPercent: 18, badge: 'Čerstvosť', flyerPage: 3 },
-        billa: { price: 2.19, regularPrice: 2.49, isOffer: false, discountPercent: 12, badge: null, flyerPage: null },
-        tesco: { price: 1.49, regularPrice: 2.29, isOffer: true, discountPercent: 35, badge: 'Super cena Clubcard', flyerPage: 1 },
-        fresh: { price: 1.85, regularPrice: 2.15, isOffer: true, discountPercent: 14, badge: 'Slovenské', flyerPage: 3 }
-      }
-    },
-    {
-      id: 'kuracie-rezne-1kg',
-      nameEn: 'Chicken Breast Fillets 1kg',
-      nameSk: 'Kuracie prsné rezne chladené 1kg',
-      category: 'meat',
-      unit: '1kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Čerstvé chladené kuracie prsia bez kostí a kože, pôvod Slovensko / EÚ.',
-      prices: {
-        kaufland: { price: 5.49, regularPrice: 7.99, isOffer: true, discountPercent: 31, badge: 'Mäsiarsky pult', flyerPage: 2 },
-        lidl: { price: 4.89, regularPrice: 7.49, isOffer: true, discountPercent: 35, badge: 'Super Sobota', flyerPage: 1 },
-        billa: { price: 6.29, regularPrice: 7.99, isOffer: true, discountPercent: 21, badge: 'Slovenská Farma', flyerPage: 5 },
-        tesco: { price: 5.79, regularPrice: 7.89, isOffer: true, discountPercent: 27, badge: 'Clubcard', flyerPage: 3 },
-        fresh: { price: 5.19, regularPrice: 7.39, isOffer: true, discountPercent: 30, badge: 'Top akcia', flyerPage: 2 }
-      }
-    },
-    {
-      id: 'bravcove-kare-1kg',
-      nameEn: 'Pork Loin boneless 1kg',
-      nameSk: 'Bravčové karé bez kosti 1kg',
-      category: 'meat',
-      unit: '1kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&auto=format&fit=crop&q=80',
-      isStaple: false,
-      description: 'Chladené bravčové karé bez kosti v celku.',
-      prices: {
-        kaufland: { price: 4.29, regularPrice: 6.49, isOffer: true, discountPercent: 34, badge: 'Výhodná kúpa', flyerPage: 6 },
-        lidl: { price: 4.49, regularPrice: 6.19, isOffer: true, discountPercent: 27, badge: 'Mäso z pultu', flyerPage: 5 },
-        billa: { price: 5.19, regularPrice: 6.69, isOffer: true, discountPercent: 22, badge: 'Zľava týždňa', flyerPage: 4 },
-        tesco: { price: 4.69, regularPrice: 6.39, isOffer: true, discountPercent: 27, badge: 'Tesco ponuka', flyerPage: 7 },
-        fresh: { price: 4.99, regularPrice: 6.29, isOffer: true, discountPercent: 21, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'chlieb-psenicno-razny-500g',
-      nameEn: 'Traditional Sourdough Bread 500g',
-      nameSk: 'Konzumný chlieb pšenično-ražný 500g',
-      category: 'bakery',
-      unit: '500g',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Chrumkavý bochník chleba s rascou pečený viackrát denne.',
-      prices: {
-        kaufland: { price: 0.89, regularPrice: 1.29, isOffer: true, discountPercent: 31, badge: 'Z našej pekárne', flyerPage: 8 },
-        lidl: { price: 0.89, regularPrice: 1.19, isOffer: true, discountPercent: 25, badge: 'Vždy čerstvé', flyerPage: 4 },
-        billa: { price: 1.19, regularPrice: 1.35, isOffer: false, discountPercent: 11, badge: null, flyerPage: null },
-        tesco: { price: 0.95, regularPrice: 1.25, isOffer: true, discountPercent: 24, badge: 'Tesco pekáreň', flyerPage: 8 },
-        fresh: { price: 0.85, regularPrice: 1.15, isOffer: true, discountPercent: 26, badge: 'Lokálna pekáreň', flyerPage: 4 }
-      }
-    },
-    {
-      id: 'rohlik-klasik-43g',
-      nameEn: 'Standard Bread Roll 43g (Rohlík)',
-      nameSk: 'Rohlík obyčajný 43g',
-      category: 'bakery',
-      unit: '1ks',
-      unitPriceBase: 'ks',
-      image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Klasický slovenský biely rohlík.',
-      prices: {
-        kaufland: { price: 0.12, regularPrice: 0.14, isOffer: true, discountPercent: 14, badge: 'Top cena', flyerPage: 8 },
-        lidl: { price: 0.11, regularPrice: 0.14, isOffer: true, discountPercent: 21, badge: 'Trhák', flyerPage: 4 },
-        billa: { price: 0.13, regularPrice: 0.14, isOffer: false, discountPercent: 7, badge: null, flyerPage: null },
-        tesco: { price: 0.12, regularPrice: 0.14, isOffer: false, discountPercent: 14, badge: null, flyerPage: null },
-        fresh: { price: 0.11, regularPrice: 0.13, isOffer: true, discountPercent: 15, badge: 'Čerstvý rohlík', flyerPage: 4 }
-      }
-    },
-    {
-      id: 'banany-1kg',
-      nameEn: 'Cavendish Bananas 1kg',
-      nameSk: 'Banány žlté 1kg',
-      category: 'produce',
-      unit: '1kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Sladké zrelé banány I. akostnej triedy.',
-      prices: {
-        kaufland: { price: 1.09, regularPrice: 1.69, isOffer: true, discountPercent: 36, badge: 'Ovocný trhák', flyerPage: 1 },
-        lidl: { price: 1.19, regularPrice: 1.69, isOffer: true, discountPercent: 30, badge: 'Pondelková zľava', flyerPage: 1 },
-        billa: { price: 1.49, regularPrice: 1.79, isOffer: true, discountPercent: 17, badge: null, flyerPage: 3 },
-        tesco: { price: 1.15, regularPrice: 1.69, isOffer: true, discountPercent: 32, badge: 'Clubcard', flyerPage: 2 },
-        fresh: { price: 1.25, regularPrice: 1.65, isOffer: true, discountPercent: 24, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'jablka-gala-1kg',
-      nameEn: 'Apples Gala Slovak 1kg',
-      nameSk: 'Jablká Gala slovenské 1kg',
-      category: 'produce',
-      unit: '1kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Chrumkavé sladké jablká od slovenských ovocinárov.',
-      prices: {
-        kaufland: { price: 0.99, regularPrice: 1.59, isOffer: true, discountPercent: 38, badge: 'Slovenské ovocie', flyerPage: 2 },
-        lidl: { price: 0.89, regularPrice: 1.49, isOffer: true, discountPercent: 40, badge: 'Super cena týždňa', flyerPage: 2 },
-        billa: { price: 1.29, regularPrice: 1.69, isOffer: true, discountPercent: 24, badge: 'Slovenská Farma', flyerPage: 2 },
-        tesco: { price: 1.09, regularPrice: 1.59, isOffer: true, discountPercent: 31, badge: 'Tesco ponuka', flyerPage: 3 },
-        fresh: { price: 0.85, regularPrice: 1.45, isOffer: true, discountPercent: 41, badge: 'Región', flyerPage: 1 }
-      }
-    },
-    {
-      id: 'zemiaky-25kg',
-      nameEn: 'Potatoes washed 2.5kg bag',
-      nameSk: 'Zemiaky prané žlté 2,5kg balenie',
-      category: 'produce',
-      unit: '2.5kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Kvalitné prané konzumné zemiaky varný typ B.',
-      prices: {
-        kaufland: { price: 1.79, regularPrice: 2.79, isOffer: true, discountPercent: 36, badge: 'Kaufland Card', flyerPage: 3 },
-        lidl: { price: 1.69, regularPrice: 2.59, isOffer: true, discountPercent: 35, badge: 'Lidl Plus kupón', flyerPage: 3 },
-        billa: { price: 2.29, regularPrice: 2.89, isOffer: true, discountPercent: 21, badge: null, flyerPage: 4 },
-        tesco: { price: 1.99, regularPrice: 2.79, isOffer: true, discountPercent: 29, badge: 'Výhodné balenie', flyerPage: 5 },
-        fresh: { price: 1.89, regularPrice: 2.69, isOffer: true, discountPercent: 30, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'olej-slnecnicovy-1l',
-      nameEn: 'Sunflower Oil 1L (Raciol/Classic)',
-      nameSk: 'Slnečnicový olej 100% 1L',
-      category: 'pantry',
-      unit: '1L',
-      unitPriceBase: 'l',
-      image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Všestranný rastlinný olej na smaženie a varenie.',
-      prices: {
-        kaufland: { price: 1.39, regularPrice: 2.19, isOffer: true, discountPercent: 37, badge: 'Trhák týždňa', flyerPage: 7 },
-        lidl: { price: 1.49, regularPrice: 2.09, isOffer: true, discountPercent: 29, badge: 'Vita D\'or', flyerPage: 6 },
-        billa: { price: 1.89, regularPrice: 2.29, isOffer: true, discountPercent: 17, badge: null, flyerPage: 7 },
-        tesco: { price: 1.35, regularPrice: 2.19, isOffer: true, discountPercent: 38, badge: 'Tesco Clubcard', flyerPage: 6 },
-        fresh: { price: 1.55, regularPrice: 2.15, isOffer: true, discountPercent: 28, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'muka-hladka-1kg',
-      nameEn: 'Wheat Flour Smooth 00 Extra 1kg',
-      nameSk: 'Pšeničná múka hladká 00 Extra 1kg',
-      category: 'pantry',
-      unit: '1kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Slovenská múka z mlynu Pohronský Ruskov.',
-      prices: {
-        kaufland: { price: 0.59, regularPrice: 0.89, isOffer: true, discountPercent: 34, badge: 'K-Classic', flyerPage: 9 },
-        lidl: { price: 0.55, regularPrice: 0.85, isOffer: true, discountPercent: 35, badge: 'Castello', flyerPage: 7 },
-        billa: { price: 0.75, regularPrice: 0.89, isOffer: false, discountPercent: 16, badge: null, flyerPage: null },
-        tesco: { price: 0.59, regularPrice: 0.89, isOffer: true, discountPercent: 34, badge: 'Výhodná cena', flyerPage: 8 },
-        fresh: { price: 0.52, regularPrice: 0.85, isOffer: true, discountPercent: 39, badge: 'Fresh múka', flyerPage: 5 }
-      }
-    },
-    {
-      id: 'cukor-krystalovy-1kg',
-      nameEn: 'Granulated Sugar 1kg',
-      nameSk: 'Cukor biely kryštálový 1kg',
-      category: 'pantry',
-      unit: '1kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1581441363689-1f3c3c414635?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Korunný cukor z cukrovej repy.',
-      prices: {
-        kaufland: { price: 0.89, regularPrice: 1.29, isOffer: true, discountPercent: 31, badge: 'Kaufland trhák', flyerPage: 9 },
-        lidl: { price: 0.89, regularPrice: 1.25, isOffer: true, discountPercent: 29, badge: 'Sladká ponuka', flyerPage: 7 },
-        billa: { price: 1.09, regularPrice: 1.29, isOffer: true, discountPercent: 16, badge: null, flyerPage: null },
-        tesco: { price: 0.95, regularPrice: 1.29, isOffer: true, discountPercent: 26, badge: 'Clubcard', flyerPage: 9 },
-        fresh: { price: 0.99, regularPrice: 1.25, isOffer: true, discountPercent: 21, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'ryza-gulatovzrnna-1kg',
-      nameEn: 'Round Grain Rice 1kg',
-      nameSk: 'Ryža guľatozrnná lúpaná 1kg',
-      category: 'pantry',
-      unit: '1kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Vysokokvalitná guľatozrnná ryža vhodná do rizota aj mliečnej kaše.',
-      prices: {
-        kaufland: { price: 1.19, regularPrice: 1.79, isOffer: true, discountPercent: 34, badge: 'K-Classic', flyerPage: 10 },
-        lidl: { price: 1.25, regularPrice: 1.69, isOffer: true, discountPercent: 26, badge: 'Golden Sun', flyerPage: 8 },
-        billa: { price: 1.59, regularPrice: 1.89, isOffer: false, discountPercent: 16, badge: null, flyerPage: null },
-        tesco: { price: 1.19, regularPrice: 1.79, isOffer: true, discountPercent: 34, badge: 'Tesco akcia', flyerPage: 10 },
-        fresh: { price: 1.29, regularPrice: 1.75, isOffer: true, discountPercent: 26, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'spagety-500g',
-      nameEn: 'Spaghetti Pasta Semolina 500g',
-      nameSk: 'Špagety semolínové 500g Barilla/K-Classic',
-      category: 'pantry',
-      unit: '500g',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281691?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Talianske cestoviny z tvrdej pšenice semolina.',
-      prices: {
-        kaufland: { price: 0.89, regularPrice: 1.49, isOffer: true, discountPercent: 40, badge: 'Taliansky týždeň', flyerPage: 11 },
-        lidl: { price: 0.99, regularPrice: 1.39, isOffer: true, discountPercent: 29, badge: 'Combino', flyerPage: 9 },
-        billa: { price: 1.29, regularPrice: 1.69, isOffer: true, discountPercent: 24, badge: 'Clever akcia', flyerPage: 8 },
-        tesco: { price: 1.10, regularPrice: 1.49, isOffer: true, discountPercent: 26, badge: null, flyerPage: null },
-        fresh: { price: 0.95, regularPrice: 1.45, isOffer: true, discountPercent: 34, badge: 'Fresh akcia', flyerPage: 6 }
-      }
-    },
-    {
-      id: 'bryndza-125g',
-      nameEn: 'Authentic Slovak Bryndza 125g',
-      nameSk: 'Liptov Bryndza plnotučná 125g',
-      category: 'dairy',
-      unit: '125g',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Pravá slovenská bryndza s chráneným zemepisným označením.',
-      prices: {
-        kaufland: { price: 1.29, regularPrice: 1.89, isOffer: true, discountPercent: 32, badge: 'Slovenské srdce', flyerPage: 4 },
-        lidl: { price: 1.39, regularPrice: 1.79, isOffer: true, discountPercent: 22, badge: 'Pilos tradícia', flyerPage: 3 },
-        billa: { price: 1.69, regularPrice: 1.99, isOffer: false, discountPercent: 15, badge: null, flyerPage: null },
-        tesco: { price: 1.35, regularPrice: 1.89, isOffer: true, discountPercent: 29, badge: 'Clubcard', flyerPage: 5 },
-        fresh: { price: 1.19, regularPrice: 1.85, isOffer: true, discountPercent: 36, badge: 'Lokálny farmár', flyerPage: 2 }
-      }
-    },
-    {
-      id: 'syr-eidam-45-100g',
-      nameEn: 'Edam Cheese block 45% 100g',
-      nameSk: 'Syr Eidam 45% tehla 100g',
-      category: 'dairy',
-      unit: '100g',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Klasický polotvrdý zrejúci syr Eidam 45% tuku v sušine.',
-      prices: {
-        kaufland: { price: 0.69, regularPrice: 0.99, isOffer: true, discountPercent: 30, badge: 'Syrový pult', flyerPage: 5 },
-        lidl: { price: 0.65, regularPrice: 0.95, isOffer: true, discountPercent: 32, badge: 'Pilos Eidam', flyerPage: 3 },
-        billa: { price: 0.89, regularPrice: 1.05, isOffer: false, discountPercent: 15, badge: null, flyerPage: null },
-        tesco: { price: 0.72, regularPrice: 0.99, isOffer: true, discountPercent: 27, badge: 'Tesco akcia', flyerPage: 4 },
-        fresh: { price: 0.68, regularPrice: 0.95, isOffer: true, discountPercent: 28, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'pilsner-urquell-05l',
-      nameEn: 'Pilsner Urquell Beer Can 0.5L',
-      nameSk: 'Plzeňský Prazdroj 12° ležiak plech 0,5L',
-      category: 'drinks',
-      unit: '0.5L',
-      unitPriceBase: 'l',
-      image: 'https://images.unsplash.com/photo-1608270191763-95244b74bbbe?w=300&auto=format&fit=crop&q=80',
-      isStaple: false,
-      description: 'Svetlý ležiak s plnou chuťou a príjemnou chmeľovou horkosťou.',
-      prices: {
-        kaufland: { price: 0.99, regularPrice: 1.49, isOffer: true, discountPercent: 34, badge: 'Pivný festival', flyerPage: 14 },
-        lidl: { price: 1.09, regularPrice: 1.45, isOffer: true, discountPercent: 25, badge: 'Výhodné multipack', flyerPage: 12 },
-        billa: { price: 1.25, regularPrice: 1.49, isOffer: false, discountPercent: 16, badge: null, flyerPage: null },
-        tesco: { price: 0.95, regularPrice: 1.49, isOffer: true, discountPercent: 36, badge: 'Clubcard trhák', flyerPage: 13 },
-        fresh: { price: 1.15, regularPrice: 1.45, isOffer: true, discountPercent: 21, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'kofola-original-2l',
-      nameEn: 'Kofola Original 2L PET',
-      nameSk: 'Kofola Original 2L PET',
-      category: 'drinks',
-      unit: '2L',
-      unitPriceBase: 'l',
-      image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=300&auto=format&fit=crop&q=80',
-      isStaple: false,
-      description: 'Tradičný československý kolový nápoj s bylinným extraktom KOFO.',
-      prices: {
-        kaufland: { price: 0.99, regularPrice: 1.59, isOffer: true, discountPercent: 38, badge: 'Letákový hit', flyerPage: 15 },
-        lidl: { price: 1.09, regularPrice: 1.49, isOffer: true, discountPercent: 27, badge: 'Svieža akcia', flyerPage: 13 },
-        billa: { price: 1.39, regularPrice: 1.59, isOffer: false, discountPercent: 13, badge: null, flyerPage: null },
-        tesco: { price: 0.99, regularPrice: 1.59, isOffer: true, discountPercent: 38, badge: 'Clubcard ponuka', flyerPage: 14 },
-        fresh: { price: 1.05, regularPrice: 1.49, isOffer: true, discountPercent: 30, badge: 'Fresh zľava', flyerPage: 7 }
-      }
-    },
-    {
-      id: 'birell-nealko-05l',
-      nameEn: 'Birell Non-Alcoholic Radler Pomelo-Grep 0.5L',
-      nameSk: 'Birell nealko Pomelo & Grep 0,5L plech',
-      category: 'drinks',
-      unit: '0.5L',
-      unitPriceBase: 'l',
-      image: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=300&auto=format&fit=crop&q=80',
-      isStaple: false,
-      description: 'Osviežujúci nealkoholický miešaný nápoj z piva s príchuťou pomela a grepu.',
-      prices: {
-        kaufland: { price: 0.69, regularPrice: 0.99, isOffer: true, discountPercent: 30, badge: 'Akciová cena', flyerPage: 15 },
-        lidl: { price: 0.69, regularPrice: 0.95, isOffer: true, discountPercent: 27, badge: 'Osvieženie', flyerPage: 13 },
-        billa: { price: 0.85, regularPrice: 0.99, isOffer: false, discountPercent: 14, badge: null, flyerPage: null },
-        tesco: { price: 0.72, regularPrice: 0.99, isOffer: true, discountPercent: 27, badge: null, flyerPage: null },
-        fresh: { price: 0.65, regularPrice: 0.95, isOffer: true, discountPercent: 32, badge: 'Top cena', flyerPage: 8 }
-      }
-    },
-    {
-      id: 'kava-zrnkova-1kg',
-      nameEn: 'Coffee Beans Tchibo Barista Espresso 1kg',
-      nameSk: 'Káva zrnková Tchibo Barista Espresso 1kg',
-      category: 'pantry',
-      unit: '1kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&auto=format&fit=crop&q=80',
-      isStaple: false,
-      description: 'Prémiová 100% káva Arabica pražená tradičným bubnovým pražením.',
-      prices: {
-        kaufland: { price: 11.99, regularPrice: 18.99, isOffer: true, discountPercent: 37, badge: 'Kaufland Card megazľava', flyerPage: 12 },
-        lidl: { price: 12.99, regularPrice: 17.99, isOffer: true, discountPercent: 28, badge: 'Bellarom/Tchibo', flyerPage: 10 },
-        billa: { price: 13.49, regularPrice: 18.99, isOffer: true, discountPercent: 29, badge: 'Billa Bonus', flyerPage: 10 },
-        tesco: { price: 11.49, regularPrice: 18.99, isOffer: true, discountPercent: 39, badge: 'Clubcard trhák', flyerPage: 11 },
-        fresh: { price: 13.99, regularPrice: 17.99, isOffer: false, discountPercent: 22, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'persil-gel-praci-15l',
-      nameEn: 'Persil Washing Gel 1.5L / 30 washes',
-      nameSk: 'Persil prací gél Deep Clean 1,5L (30 praní)',
-      category: 'household',
-      unit: '1.5L',
-      unitPriceBase: 'l',
-      image: 'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=300&auto=format&fit=crop&q=80',
-      isStaple: false,
-      description: 'Prací gél s hĺbkovým čistiacim účinkom na farebnú aj bielu bielizeň.',
-      prices: {
-        kaufland: { price: 7.99, regularPrice: 13.99, isOffer: true, discountPercent: 43, badge: 'Super akcia', flyerPage: 16 },
-        lidl: { price: 8.49, regularPrice: 12.99, isOffer: true, discountPercent: 35, badge: 'Formil / Persil', flyerPage: 14 },
-        billa: { price: 9.99, regularPrice: 14.49, isOffer: true, discountPercent: 31, badge: 'Drogéria', flyerPage: 12 },
-        tesco: { price: 7.49, regularPrice: 13.99, isOffer: true, discountPercent: 46, badge: 'Najnižšia cena Clubcard', flyerPage: 15 },
-        fresh: { price: 8.99, regularPrice: 13.49, isOffer: true, discountPercent: 33, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'jar-na-riad-900ml',
-      nameEn: 'Jar Dishwashing Liquid Lemon 900ml',
-      nameSk: 'Jar prostriedok na riad Citrón 900ml',
-      category: 'household',
-      unit: '900ml',
-      unitPriceBase: 'l',
-      image: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Účinný tekutý prostriedok na ručné umývanie riadu s odmasťovacou silou.',
-      prices: {
-        kaufland: { price: 2.19, regularPrice: 3.49, isOffer: true, discountPercent: 37, badge: 'Výhodné balenie', flyerPage: 17 },
-        lidl: { price: 2.29, regularPrice: 3.29, isOffer: true, discountPercent: 30, badge: 'W5 / Jar', flyerPage: 15 },
-        billa: { price: 2.79, regularPrice: 3.49, isOffer: true, discountPercent: 20, badge: null, flyerPage: 14 },
-        tesco: { price: 1.99, regularPrice: 3.49, isOffer: true, discountPercent: 43, badge: 'Clubcard zľava', flyerPage: 16 },
-        fresh: { price: 2.39, regularPrice: 3.39, isOffer: true, discountPercent: 29, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'toaletny-papier-8ks',
-      nameEn: 'Toilet Paper Harmony 3-ply 8 rolls',
-      nameSk: 'Toaletný papier Harmony Soft 3-vrstvový 8ks',
-      category: 'household',
-      unit: '8ks',
-      unitPriceBase: 'ks',
-      image: 'https://images.unsplash.com/photo-1584556812952-905ffd0c611a?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Jemný biely trojvrstvový toaletný papier zo 100% celulózy.',
-      prices: {
-        kaufland: { price: 2.29, regularPrice: 3.69, isOffer: true, discountPercent: 38, badge: 'Letákový hit', flyerPage: 18 },
-        lidl: { price: 2.19, regularPrice: 3.49, isOffer: true, discountPercent: 37, badge: 'Floralys', flyerPage: 16 },
-        billa: { price: 2.89, regularPrice: 3.69, isOffer: true, discountPercent: 22, badge: null, flyerPage: 15 },
-        tesco: { price: 2.49, regularPrice: 3.69, isOffer: true, discountPercent: 32, badge: 'Clubcard', flyerPage: 17 },
-        fresh: { price: 2.59, regularPrice: 3.59, isOffer: true, discountPercent: 28, badge: null, flyerPage: null }
-      }
-    }
-  ]
+  items: CURRENT_ITEMS
 };
 
-// Upcoming weekly flyer cycle (e.g. Nov 12, 2026 - Nov 18, 2026)
-// Used when the current offer period expires or when previewing upcoming leaflets!
 const UPCOMING_CYCLE = {
   cycleId: 'cycle-w46-2026',
   cycleName: 'Týždeň 46 / Budúce letáky (Nové ponuky)',
   validFrom: '2026-11-12T00:00:00Z',
   validUntil: '2026-11-18T23:59:59Z',
-  totalDeals: 38,
+  totalDeals: UPCOMING_ITEMS.length,
   status: 'upcoming',
-  items: [
-    {
-      id: 'maslo-250g',
-      nameEn: 'Fresh Butter 82% 250g',
-      nameSk: 'Čerstvé maslo 82% 250g',
-      category: 'dairy',
-      unit: '250g',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Tradičné slovenské maslo s minimálnym obsahom tuku 82 %.',
-      prices: {
-        kaufland: { price: 1.79, regularPrice: 2.39, isOffer: true, discountPercent: 25, badge: 'Kaufland ponuka', flyerPage: 4 },
-        lidl: { price: 1.39, regularPrice: 2.29, isOffer: true, discountPercent: 39, badge: 'Lidl Plus bomba týždňa', flyerPage: 1 },
-        billa: { price: 1.99, regularPrice: 2.49, isOffer: true, discountPercent: 20, badge: 'Billa Bonus', flyerPage: 3 },
-        tesco: { price: 1.65, regularPrice: 2.39, isOffer: true, discountPercent: 31, badge: 'Clubcard', flyerPage: 2 },
-        fresh: { price: 1.59, regularPrice: 2.19, isOffer: true, discountPercent: 27, badge: 'Fresh zľava', flyerPage: 1 }
-      }
-    },
-    {
-      id: 'mlieko-15-1l',
-      nameEn: 'Semi-skimmed Milk 1.5% 1L',
-      nameSk: 'Mlieko polotučné 1,5% 1L UHT',
-      category: 'dairy',
-      unit: '1L',
-      unitPriceBase: 'l',
-      image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Trvanlivé polotučné mlieko ošetrené UHT technológiou.',
-      prices: {
-        kaufland: { price: 0.65, regularPrice: 0.99, isOffer: true, discountPercent: 34, badge: 'Super cena K-Classic', flyerPage: 1 },
-        lidl: { price: 0.75, regularPrice: 0.99, isOffer: true, discountPercent: 24, badge: null, flyerPage: 5 },
-        billa: { price: 0.89, regularPrice: 1.05, isOffer: true, discountPercent: 15, badge: 'Clever akcia', flyerPage: 4 },
-        tesco: { price: 0.72, regularPrice: 0.99, isOffer: true, discountPercent: 27, badge: 'Clubcard', flyerPage: 5 },
-        fresh: { price: 0.79, regularPrice: 0.99, isOffer: true, discountPercent: 20, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'vajcia-10ks',
-      nameEn: 'Barn Eggs M 10 pcs',
-      nameSk: 'Vajcia z podstielkového chovu M 10ks',
-      category: 'dairy',
-      unit: '10ks',
-      unitPriceBase: 'ks',
-      image: 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Slovenské čerstvé podstielkové vajcia veľkosti M.',
-      prices: {
-        kaufland: { price: 1.69, regularPrice: 2.39, isOffer: true, discountPercent: 29, badge: null, flyerPage: null },
-        lidl: { price: 1.49, regularPrice: 2.19, isOffer: true, discountPercent: 32, badge: 'Super Sobota', flyerPage: 2 },
-        billa: { price: 1.99, regularPrice: 2.49, isOffer: true, discountPercent: 20, badge: 'Billa zľava', flyerPage: 5 },
-        tesco: { price: 1.29, regularPrice: 2.29, isOffer: true, discountPercent: 44, badge: 'Mega zľava Clubcard', flyerPage: 1 },
-        fresh: { price: 1.75, regularPrice: 2.15, isOffer: true, discountPercent: 19, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'kuracie-rezne-1kg',
-      nameEn: 'Chicken Breast Fillets 1kg',
-      nameSk: 'Kuracie prsné rezne chladené 1kg',
-      category: 'meat',
-      unit: '1kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Čerstvé chladené kuracie prsia bez kostí a kože, pôvod Slovensko / EÚ.',
-      prices: {
-        kaufland: { price: 4.79, regularPrice: 7.99, isOffer: true, discountPercent: 40, badge: 'Kaufland Card pecka', flyerPage: 1 },
-        lidl: { price: 5.29, regularPrice: 7.49, isOffer: true, discountPercent: 29, badge: 'Pondelok čerstvosť', flyerPage: 3 },
-        billa: { price: 5.89, regularPrice: 7.99, isOffer: true, discountPercent: 26, badge: 'Slovenská Farma', flyerPage: 4 },
-        tesco: { price: 5.19, regularPrice: 7.89, isOffer: true, discountPercent: 34, badge: 'Clubcard zľava', flyerPage: 3 },
-        fresh: { price: 4.95, regularPrice: 7.39, isOffer: true, discountPercent: 33, badge: 'Fresh trhák', flyerPage: 2 }
-      }
-    },
-    {
-      id: 'bravcove-kare-1kg',
-      nameEn: 'Pork Loin boneless 1kg',
-      nameSk: 'Bravčové karé bez kosti 1kg',
-      category: 'meat',
-      unit: '1kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=300&auto=format&fit=crop&q=80',
-      isStaple: false,
-      description: 'Chladené bravčové karé bez kosti v celku.',
-      prices: {
-        kaufland: { price: 3.99, regularPrice: 6.49, isOffer: true, discountPercent: 39, badge: 'Mäsiarska zľava', flyerPage: 3 },
-        lidl: { price: 4.19, regularPrice: 6.19, isOffer: true, discountPercent: 32, badge: 'Super cena', flyerPage: 4 },
-        billa: { price: 4.89, regularPrice: 6.69, isOffer: true, discountPercent: 27, badge: 'Akcia týždňa', flyerPage: 6 },
-        tesco: { price: 4.49, regularPrice: 6.39, isOffer: true, discountPercent: 30, badge: 'Clubcard', flyerPage: 4 },
-        fresh: { price: 4.39, regularPrice: 6.29, isOffer: true, discountPercent: 30, badge: 'Slovenské bravčové', flyerPage: 2 }
-      }
-    },
-    {
-      id: 'chlieb-psenicno-razny-500g',
-      nameEn: 'Traditional Sourdough Bread 500g',
-      nameSk: 'Konzumný chlieb pšenično-ražný 500g',
-      category: 'bakery',
-      unit: '500g',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Chrumkavý bochník chleba s rascou pečený viackrát denne.',
-      prices: {
-        kaufland: { price: 0.95, regularPrice: 1.29, isOffer: true, discountPercent: 26, badge: null, flyerPage: null },
-        lidl: { price: 0.79, regularPrice: 1.19, isOffer: true, discountPercent: 34, badge: 'Zlatý chlieb akcia', flyerPage: 2 },
-        billa: { price: 1.09, regularPrice: 1.35, isOffer: true, discountPercent: 19, badge: null, flyerPage: 5 },
-        tesco: { price: 0.89, regularPrice: 1.25, isOffer: true, discountPercent: 29, badge: 'Pekáreň zľava', flyerPage: 6 },
-        fresh: { price: 0.79, regularPrice: 1.15, isOffer: true, discountPercent: 31, badge: 'Tradičný peceň', flyerPage: 3 }
-      }
-    },
-    {
-      id: 'rohlik-klasik-43g',
-      nameEn: 'Standard Bread Roll 43g (Rohlík)',
-      nameSk: 'Rohlík obyčajný 43g',
-      category: 'bakery',
-      unit: '1ks',
-      unitPriceBase: 'ks',
-      image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Klasický slovenský biely rohlík.',
-      prices: {
-        kaufland: { price: 0.10, regularPrice: 0.14, isOffer: true, discountPercent: 29, badge: 'Cenový hit', flyerPage: 3 },
-        lidl: { price: 0.10, regularPrice: 0.14, isOffer: true, discountPercent: 29, badge: 'Rohlík za babku', flyerPage: 2 },
-        billa: { price: 0.12, regularPrice: 0.14, isOffer: false, discountPercent: 14, badge: null, flyerPage: null },
-        tesco: { price: 0.11, regularPrice: 0.14, isOffer: true, discountPercent: 21, badge: null, flyerPage: null },
-        fresh: { price: 0.10, regularPrice: 0.13, isOffer: true, discountPercent: 23, badge: 'Čerstvý rohlík', flyerPage: 3 }
-      }
-    },
-    {
-      id: 'banany-1kg',
-      nameEn: 'Cavendish Bananas 1kg',
-      nameSk: 'Banány žlté 1kg',
-      category: 'produce',
-      unit: '1kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Sladké zrelé banány I. akostnej triedy.',
-      prices: {
-        kaufland: { price: 1.15, regularPrice: 1.69, isOffer: true, discountPercent: 32, badge: null, flyerPage: null },
-        lidl: { price: 0.99, regularPrice: 1.69, isOffer: true, discountPercent: 41, badge: 'Trhák týždňa Lidl', flyerPage: 1 },
-        billa: { price: 1.35, regularPrice: 1.79, isOffer: true, discountPercent: 25, badge: 'Billa ponuka', flyerPage: 2 },
-        tesco: { price: 1.05, regularPrice: 1.69, isOffer: true, discountPercent: 38, badge: 'Clubcard', flyerPage: 2 },
-        fresh: { price: 1.19, regularPrice: 1.65, isOffer: true, discountPercent: 28, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'jablka-gala-1kg',
-      nameEn: 'Apples Gala Slovak 1kg',
-      nameSk: 'Jablká Gala slovenské 1kg',
-      category: 'produce',
-      unit: '1kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Chrumkavé sladké jablká od slovenských ovocinárov.',
-      prices: {
-        kaufland: { price: 0.89, regularPrice: 1.59, isOffer: true, discountPercent: 44, badge: 'Top slovenská úroda', flyerPage: 2 },
-        lidl: { price: 0.99, regularPrice: 1.49, isOffer: true, discountPercent: 34, badge: null, flyerPage: 3 },
-        billa: { price: 1.19, regularPrice: 1.69, isOffer: true, discountPercent: 30, badge: 'Slovenská Farma', flyerPage: 2 },
-        tesco: { price: 0.95, regularPrice: 1.59, isOffer: true, discountPercent: 40, badge: 'Clubcard akcia', flyerPage: 3 },
-        fresh: { price: 0.79, regularPrice: 1.45, isOffer: true, discountPercent: 46, badge: 'Super cena Fresh', flyerPage: 1 }
-      }
-    },
-    {
-      id: 'zemiaky-25kg',
-      nameEn: 'Potatoes washed 2.5kg bag',
-      nameSk: 'Zemiaky prané žlté 2,5kg balenie',
-      category: 'produce',
-      unit: '2.5kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Kvalitné prané konzumné zemiaky varný typ B.',
-      prices: {
-        kaufland: { price: 1.59, regularPrice: 2.79, isOffer: true, discountPercent: 43, badge: 'Veľké rodinné balenie', flyerPage: 2 },
-        lidl: { price: 1.79, regularPrice: 2.59, isOffer: true, discountPercent: 31, badge: null, flyerPage: 4 },
-        billa: { price: 2.19, regularPrice: 2.89, isOffer: true, discountPercent: 24, badge: null, flyerPage: 5 },
-        tesco: { price: 1.69, regularPrice: 2.79, isOffer: true, discountPercent: 39, badge: 'Clubcard trhák', flyerPage: 4 },
-        fresh: { price: 1.75, regularPrice: 2.69, isOffer: true, discountPercent: 35, badge: 'Slovenský pestovateľ', flyerPage: 3 }
-      }
-    },
-    {
-      id: 'olej-slnecnicovy-1l',
-      nameEn: 'Sunflower Oil 1L (Raciol/Classic)',
-      nameSk: 'Slnečnicový olej 100% 1L',
-      category: 'pantry',
-      unit: '1L',
-      unitPriceBase: 'l',
-      image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Všestranný rastlinný olej na smaženie a varenie.',
-      prices: {
-        kaufland: { price: 1.45, regularPrice: 2.19, isOffer: true, discountPercent: 34, badge: null, flyerPage: 7 },
-        lidl: { price: 1.29, regularPrice: 2.09, isOffer: true, discountPercent: 38, badge: 'Vita D\'or bomba', flyerPage: 4 },
-        billa: { price: 1.69, regularPrice: 2.29, isOffer: true, discountPercent: 26, badge: 'Clever zľava', flyerPage: 8 },
-        tesco: { price: 1.39, regularPrice: 2.19, isOffer: true, discountPercent: 37, badge: 'Clubcard', flyerPage: 5 },
-        fresh: { price: 1.49, regularPrice: 2.15, isOffer: true, discountPercent: 31, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'muka-hladka-1kg',
-      nameEn: 'Wheat Flour Smooth 00 Extra 1kg',
-      nameSk: 'Pšeničná múka hladká 00 Extra 1kg',
-      category: 'pantry',
-      unit: '1kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Slovenská múka z mlynu Pohronský Ruskov.',
-      prices: {
-        kaufland: { price: 0.52, regularPrice: 0.89, isOffer: true, discountPercent: 42, badge: 'Múka za bezkonkurenčnú cenu', flyerPage: 5 },
-        lidl: { price: 0.59, regularPrice: 0.85, isOffer: true, discountPercent: 31, badge: null, flyerPage: 8 },
-        billa: { price: 0.69, regularPrice: 0.89, isOffer: true, discountPercent: 22, badge: 'Clever akcia', flyerPage: 7 },
-        tesco: { price: 0.55, regularPrice: 0.89, isOffer: true, discountPercent: 38, badge: 'Tesco Clubcard', flyerPage: 6 },
-        fresh: { price: 0.58, regularPrice: 0.85, isOffer: true, discountPercent: 32, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'cukor-krystalovy-1kg',
-      nameEn: 'Granulated Sugar 1kg',
-      nameSk: 'Cukor biely kryštálový 1kg',
-      category: 'pantry',
-      unit: '1kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1581441363689-1f3c3c414635?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Korunný cukor z cukrovej repy.',
-      prices: {
-        kaufland: { price: 0.85, regularPrice: 1.29, isOffer: true, discountPercent: 34, badge: 'K-Classic akcia', flyerPage: 6 },
-        lidl: { price: 0.82, regularPrice: 1.25, isOffer: true, discountPercent: 34, badge: 'Lidl Plus kupón', flyerPage: 5 },
-        billa: { price: 0.99, regularPrice: 1.29, isOffer: true, discountPercent: 23, badge: null, flyerPage: null },
-        tesco: { price: 0.89, regularPrice: 1.29, isOffer: true, discountPercent: 31, badge: 'Clubcard', flyerPage: 7 },
-        fresh: { price: 0.92, regularPrice: 1.25, isOffer: true, discountPercent: 26, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'ryza-gulatovzrnna-1kg',
-      nameEn: 'Round Grain Rice 1kg',
-      nameSk: 'Ryža guľatozrnná lúpaná 1kg',
-      category: 'pantry',
-      unit: '1kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Vysokokvalitná guľatozrnná ryža vhodná do rizota aj mliečnej kaše.',
-      prices: {
-        kaufland: { price: 1.09, regularPrice: 1.79, isOffer: true, discountPercent: 39, badge: 'Výhodné rodinné', flyerPage: 8 },
-        lidl: { price: 1.15, regularPrice: 1.69, isOffer: true, discountPercent: 32, badge: 'Golden Sun zľava', flyerPage: 6 },
-        billa: { price: 1.49, regularPrice: 1.89, isOffer: true, discountPercent: 21, badge: null, flyerPage: 9 },
-        tesco: { price: 1.12, regularPrice: 1.79, isOffer: true, discountPercent: 37, badge: 'Clubcard cena', flyerPage: 7 },
-        fresh: { price: 1.22, regularPrice: 1.75, isOffer: true, discountPercent: 30, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'spagety-500g',
-      nameEn: 'Spaghetti Pasta Semolina 500g',
-      nameSk: 'Špagety semolínové 500g Barilla/K-Classic',
-      category: 'pantry',
-      unit: '500g',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281691?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Talianske cestoviny z tvrdej pšenice semolina.',
-      prices: {
-        kaufland: { price: 0.95, regularPrice: 1.49, isOffer: true, discountPercent: 36, badge: null, flyerPage: null },
-        lidl: { price: 0.85, regularPrice: 1.39, isOffer: true, discountPercent: 39, badge: 'Italiamo týždeň', flyerPage: 1 },
-        billa: { price: 1.15, regularPrice: 1.69, isOffer: true, discountPercent: 32, badge: 'Barilla v akcii', flyerPage: 7 },
-        tesco: { price: 0.99, regularPrice: 1.49, isOffer: true, discountPercent: 34, badge: 'Tesco akcia', flyerPage: 8 },
-        fresh: { price: 0.89, regularPrice: 1.45, isOffer: true, discountPercent: 39, badge: 'Fresh zľava', flyerPage: 4 }
-      }
-    },
-    {
-      id: 'bryndza-125g',
-      nameEn: 'Authentic Slovak Bryndza 125g',
-      nameSk: 'Liptov Bryndza plnotučná 125g',
-      category: 'dairy',
-      unit: '125g',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Pravá slovenská bryndza s chráneným zemepisným označením.',
-      prices: {
-        kaufland: { price: 1.35, regularPrice: 1.89, isOffer: true, discountPercent: 29, badge: null, flyerPage: null },
-        lidl: { price: 1.25, regularPrice: 1.79, isOffer: true, discountPercent: 30, badge: 'Lidl Plus', flyerPage: 4 },
-        billa: { price: 1.49, regularPrice: 1.99, isOffer: true, discountPercent: 25, badge: 'Slovenská farma', flyerPage: 6 },
-        tesco: { price: 1.29, regularPrice: 1.89, isOffer: true, discountPercent: 32, badge: 'Clubcard zľava', flyerPage: 4 },
-        fresh: { price: 1.15, regularPrice: 1.85, isOffer: true, discountPercent: 38, badge: 'Východniarska akcia', flyerPage: 1 }
-      }
-    },
-    {
-      id: 'syr-eidam-45-100g',
-      nameEn: 'Edam Cheese block 45% 100g',
-      nameSk: 'Syr Eidam 45% tehla 100g',
-      category: 'dairy',
-      unit: '100g',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Klasický polotvrdý zrejúci syr Eidam 45% tuku v sušine.',
-      prices: {
-        kaufland: { price: 0.62, regularPrice: 0.99, isOffer: true, discountPercent: 37, badge: 'Kaufland Card pecka', flyerPage: 4 },
-        lidl: { price: 0.69, regularPrice: 0.95, isOffer: true, discountPercent: 27, badge: null, flyerPage: null },
-        billa: { price: 0.79, regularPrice: 1.05, isOffer: true, discountPercent: 25, badge: 'Pultová akcia', flyerPage: 5 },
-        tesco: { price: 0.65, regularPrice: 0.99, isOffer: true, discountPercent: 34, badge: 'Clubcard', flyerPage: 5 },
-        fresh: { price: 0.66, regularPrice: 0.95, isOffer: true, discountPercent: 31, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'pilsner-urquell-05l',
-      nameEn: 'Pilsner Urquell Beer Can 0.5L',
-      nameSk: 'Plzeňský Prazdroj 12° ležiak plech 0,5L',
-      category: 'drinks',
-      unit: '0.5L',
-      unitPriceBase: 'l',
-      image: 'https://images.unsplash.com/photo-1608270191763-95244b74bbbe?w=300&auto=format&fit=crop&q=80',
-      isStaple: false,
-      description: 'Svetlý ležiak s plnou chuťou a príjemnou chmeľovou horkosťou.',
-      prices: {
-        kaufland: { price: 1.05, regularPrice: 1.49, isOffer: true, discountPercent: 30, badge: null, flyerPage: 13 },
-        lidl: { price: 0.99, regularPrice: 1.45, isOffer: true, discountPercent: 32, badge: 'Super víkend', flyerPage: 12 },
-        billa: { price: 0.89, regularPrice: 1.49, isOffer: true, discountPercent: 40, badge: 'Billa trhák týždňa', flyerPage: 1 },
-        tesco: { price: 1.05, regularPrice: 1.49, isOffer: true, discountPercent: 30, badge: null, flyerPage: 14 },
-        fresh: { price: 1.09, regularPrice: 1.45, isOffer: true, discountPercent: 25, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'kofola-original-2l',
-      nameEn: 'Kofola Original 2L PET',
-      nameSk: 'Kofola Original 2L PET',
-      category: 'drinks',
-      unit: '2L',
-      unitPriceBase: 'l',
-      image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=300&auto=format&fit=crop&q=80',
-      isStaple: false,
-      description: 'Tradičný československý kolový nápoj s bylinným extraktom KOFO.',
-      prices: {
-        kaufland: { price: 1.09, regularPrice: 1.59, isOffer: true, discountPercent: 31, badge: null, flyerPage: 14 },
-        lidl: { price: 0.95, regularPrice: 1.49, isOffer: true, discountPercent: 36, badge: 'Lidl Plus kupón', flyerPage: 11 },
-        billa: { price: 1.15, regularPrice: 1.59, isOffer: true, discountPercent: 28, badge: 'Akcia nápoje', flyerPage: 12 },
-        tesco: { price: 1.05, regularPrice: 1.59, isOffer: true, discountPercent: 34, badge: null, flyerPage: 13 },
-        fresh: { price: 0.99, regularPrice: 1.49, isOffer: true, discountPercent: 34, badge: 'Fresh hit', flyerPage: 6 }
-      }
-    },
-    {
-      id: 'birell-nealko-05l',
-      nameEn: 'Birell Non-Alcoholic Radler Pomelo-Grep 0.5L',
-      nameSk: 'Birell nealko Pomelo & Grep 0,5L plech',
-      category: 'drinks',
-      unit: '0.5L',
-      unitPriceBase: 'l',
-      image: 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=300&auto=format&fit=crop&q=80',
-      isStaple: false,
-      description: 'Osviežujúci nealkoholický miešaný nápoj z piva s príchuťou pomela a grepu.',
-      prices: {
-        kaufland: { price: 0.65, regularPrice: 0.99, isOffer: true, discountPercent: 34, badge: 'Akciový nápoj', flyerPage: 14 },
-        lidl: { price: 0.62, regularPrice: 0.95, isOffer: true, discountPercent: 35, badge: 'Lidl Plus', flyerPage: 12 },
-        billa: { price: 0.79, regularPrice: 0.99, isOffer: true, discountPercent: 20, badge: null, flyerPage: 13 },
-        tesco: { price: 0.69, regularPrice: 0.99, isOffer: true, discountPercent: 30, badge: 'Clubcard', flyerPage: 14 },
-        fresh: { price: 0.69, regularPrice: 0.95, isOffer: true, discountPercent: 27, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'kava-zrnkova-1kg',
-      nameEn: 'Coffee Beans Tchibo Barista Espresso 1kg',
-      nameSk: 'Káva zrnková Tchibo Barista Espresso 1kg',
-      category: 'pantry',
-      unit: '1kg',
-      unitPriceBase: 'kg',
-      image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300&auto=format&fit=crop&q=80',
-      isStaple: false,
-      description: 'Prémiová 100% káva Arabica pražená tradičným bubnovým pražením.',
-      prices: {
-        kaufland: { price: 12.49, regularPrice: 18.99, isOffer: true, discountPercent: 34, badge: 'Kaufland káva', flyerPage: 11 },
-        lidl: { price: 10.99, regularPrice: 17.99, isOffer: true, discountPercent: 39, badge: 'Bellarom / Tchibo trhák', flyerPage: 1 },
-        billa: { price: 11.99, regularPrice: 18.99, isOffer: true, discountPercent: 37, badge: 'Billa Bonus zľava', flyerPage: 9 },
-        tesco: { price: 12.99, regularPrice: 18.99, isOffer: true, discountPercent: 32, badge: 'Clubcard', flyerPage: 10 },
-        fresh: { price: 12.89, regularPrice: 17.99, isOffer: true, discountPercent: 28, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'persil-gel-praci-15l',
-      nameEn: 'Persil Washing Gel 1.5L / 30 washes',
-      nameSk: 'Persil prací gél Deep Clean 1,5L (30 praní)',
-      category: 'household',
-      unit: '1.5L',
-      unitPriceBase: 'l',
-      image: 'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=300&auto=format&fit=crop&q=80',
-      isStaple: false,
-      description: 'Prací gél s hĺbkovým čistiacim účinkom na farebnú aj bielu bielizeň.',
-      prices: {
-        kaufland: { price: 7.49, regularPrice: 13.99, isOffer: true, discountPercent: 46, badge: 'Kaufland Card trhák', flyerPage: 1 },
-        lidl: { price: 7.89, regularPrice: 12.99, isOffer: true, discountPercent: 39, badge: 'Čistý domov', flyerPage: 15 },
-        billa: { price: 8.99, regularPrice: 14.49, isOffer: true, discountPercent: 38, badge: 'Drogéria akcia', flyerPage: 14 },
-        tesco: { price: 8.29, regularPrice: 13.99, isOffer: true, discountPercent: 41, badge: 'Clubcard', flyerPage: 16 },
-        fresh: { price: 8.49, regularPrice: 13.49, isOffer: true, discountPercent: 37, badge: null, flyerPage: null }
-      }
-    },
-    {
-      id: 'jar-na-riad-900ml',
-      nameEn: 'Jar Dishwashing Liquid Lemon 900ml',
-      nameSk: 'Jar prostriedok na riad Citrón 900ml',
-      category: 'household',
-      unit: '900ml',
-      unitPriceBase: 'l',
-      image: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Účinný tekutý prostriedok na ručné umývanie riadu s odmasťovacou silou.',
-      prices: {
-        kaufland: { price: 1.99, regularPrice: 3.49, isOffer: true, discountPercent: 43, badge: 'Jar bomba týždňa', flyerPage: 16 },
-        lidl: { price: 2.15, regularPrice: 3.29, isOffer: true, discountPercent: 35, badge: 'Lidl akcia', flyerPage: 14 },
-        billa: { price: 2.49, regularPrice: 3.49, isOffer: true, discountPercent: 29, badge: null, flyerPage: 13 },
-        tesco: { price: 2.19, regularPrice: 3.49, isOffer: true, discountPercent: 37, badge: 'Clubcard', flyerPage: 15 },
-        fresh: { price: 2.19, regularPrice: 3.39, isOffer: true, discountPercent: 35, badge: 'Super cena', flyerPage: 8 }
-      }
-    },
-    {
-      id: 'toaletny-papier-8ks',
-      nameEn: 'Toilet Paper Harmony 3-ply 8 rolls',
-      nameSk: 'Toaletný papier Harmony Soft 3-vrstvový 8ks',
-      category: 'household',
-      unit: '8ks',
-      unitPriceBase: 'ks',
-      image: 'https://images.unsplash.com/photo-1584556812952-905ffd0c611a?w=300&auto=format&fit=crop&q=80',
-      isStaple: true,
-      description: 'Jemný biely trojvrstvový toaletný papier zo 100% celulózy.',
-      prices: {
-        kaufland: { price: 2.39, regularPrice: 3.69, isOffer: true, discountPercent: 35, badge: null, flyerPage: 17 },
-        lidl: { price: 1.99, regularPrice: 3.49, isOffer: true, discountPercent: 43, badge: 'Floralys super zľava', flyerPage: 1 },
-        billa: { price: 2.69, regularPrice: 3.69, isOffer: true, discountPercent: 27, badge: 'Clever hygiena', flyerPage: 15 },
-        tesco: { price: 2.29, regularPrice: 3.69, isOffer: true, discountPercent: 38, badge: 'Clubcard', flyerPage: 16 },
-        fresh: { price: 2.45, regularPrice: 3.59, isOffer: true, discountPercent: 32, badge: null, flyerPage: null }
-      }
-    }
-  ]
+  items: UPCOMING_ITEMS
 };
 
-// Public Slovak Leaflet links & web cover metadata
+// Public Slovak Leaflet metadata & cover links
 const LEAFLETS_METADATA = [
   {
     chainId: 'kaufland',

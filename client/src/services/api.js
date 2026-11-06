@@ -72,5 +72,17 @@ export const api = {
       method: 'POST'
     });
     return res.json();
+  },
+
+  async analyzeFlyers() {
+    const res = await fetch(`${API_BASE}/flyers/analyze`, {
+      method: 'POST'
+    });
+    return res.json();
+  },
+
+  async getFlyerStats() {
+    const res = await fetch(`${API_BASE}/flyers/stats`);
+    return res.json();
   }
 };

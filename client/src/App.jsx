@@ -6,6 +6,7 @@ import StoreLocator from './components/StoreLocator';
 import LifecyclePrescriptions from './components/LifecyclePrescriptions';
 import LeafletsView from './components/LeafletsView';
 import NotificationBanner from './components/NotificationBanner';
+import FlyerAnalyzerModal from './components/FlyerAnalyzerModal';
 import { translations } from './data/translations';
 import { api } from './services/api';
 import confetti from 'canvas-confetti';
@@ -64,6 +65,11 @@ export default function App() {
   const [isRotating, setIsRotating] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncResult, setLastSyncResult] = useState(null);
+
+  // AI Flyer Analyzer Model State
+  const [isModelModalOpen, setIsModelModalOpen] = useState(false);
+  const [isAnalyzingFlyers, setIsAnalyzingFlyers] = useState(false);
+  const [analyzerResult, setAnalyzerResult] = useState(null);
 
   // Initial Load
   useEffect(() => {
@@ -319,6 +325,25 @@ export default function App() {
     }
   };
 
+  // Run AI Flyer Analyzer Model
+  const handleRunFlyerAnalysis = async () => {
+    setIsAnalyzingFlyers(true);
+    try {
+      const res = await api.analyzeFlyers();
+      setAnalyzerResult(res);
+      await loadInitialData();
+      setNotification({
+        title: 'AI Analýza letákov úspešná!',
+        message: 'Boli stiahnuté letáky aktuálneho aj budúceho týždňa a načítaných 85+ detailných odrôd tovaru.'
+      });
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.5 } });
+    } catch (err) {
+      console.error('Flyer analysis failed:', err);
+    } finally {
+      setIsAnalyzingFlyers(false);
+    }
+  };
+
   const totalBasketItems = basket.reduce((sum, b) => sum + b.quantity, 0);
 
   return (
@@ -347,6 +372,18 @@ export default function App() {
         basketCount={totalBasketItems}
         onSimulateRotation={handleSimulateRotation}
         isRotating={isRotating}
+        onOpenModelModal={() => setIsModelModalOpen(true)}
+      />
+
+      {/* AI Flyer Analyzer Modal */}
+      <FlyerAnalyzerModal
+        isOpen={isModelModalOpen}
+        onClose={() => setIsModelModalOpen(false)}
+        onRunAnalysis={handleRunFlyerAnalysis}
+        isAnalyzing={isAnalyzingFlyers}
+        analysisResult={analyzerResult}
+        t={t}
+        lang={lang}
       />
 
       {/* App Content */}
