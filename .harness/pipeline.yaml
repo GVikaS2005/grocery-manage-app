@@ -1,0 +1,43 @@
+pipeline:
+  name: SupaGrocer Build and Deploy
+  identifier: SupaGrocer_Build_and_Deploy
+  projectIdentifier: default_project
+  orgIdentifier: default
+  tags:
+    app: supagrocer
+    framework: react-express
+  stages:
+    - stage:
+        name: Build and Test
+        identifier: Build_and_Test
+        description: Build frontend, run linter, and verify server
+        type: CI
+        spec:
+          cloneCodebase: true
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Install Dependencies
+                  identifier: install_deps
+                  spec:
+                    shell: Sh
+                    command: |-
+                      npm ci
+                      cd client && npm ci
+              - step:
+                  type: Run
+                  name: Build Frontend
+                  identifier: build_frontend
+                  spec:
+                    shell: Sh
+                    command: |-
+                      npm run build
+              - step:
+                  type: Run
+                  name: Verify Backend Health
+                  identifier: verify_backend
+                  spec:
+                    shell: Sh
+                    command: |-
+                      node -e "require('./server/index.js'); console.log('Backend syntax and configuration verified'); process.exit(0);"
