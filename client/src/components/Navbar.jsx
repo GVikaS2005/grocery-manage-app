@@ -9,7 +9,8 @@ import {
   BarChart3, 
   BookOpen, 
   Calendar,
-  Layers
+  Layers,
+  Flame
 } from 'lucide-react';
 
 export default function Navbar({
@@ -50,7 +51,7 @@ export default function Navbar({
               ))}
             </select>
             <span className="hidden sm:inline text-slate-400 text-[11px]">
-              • Obchody: Kaufland, Lidl, Billa, Tesco, FRESH
+              {lang === 'sk' ? '• Obchody: Kaufland, Lidl, Billa, Tesco, FRESH' : '• Stores: Kaufland, Lidl, Billa, Tesco, FRESH'}
             </span>
           </div>
 
@@ -131,6 +132,21 @@ export default function Navbar({
 
         {/* Navigation Tabs */}
         <nav className="flex items-center gap-1 sm:gap-2 overflow-x-auto py-1">
+          <button
+            onClick={() => setActiveTab('flyer')}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-black transition cursor-pointer ${
+              activeTab === 'flyer'
+                ? 'bg-rose-600 text-white shadow-md shadow-rose-600/30'
+                : 'text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200'
+            }`}
+          >
+            <Flame className="w-4 h-4 fill-current" />
+            <span>{t.tabSmartFlyer}</span>
+            <span className="bg-amber-400 text-slate-900 text-[9px] font-black px-1 rounded uppercase">
+              Hit
+            </span>
+          </button>
+
           <button
             onClick={() => setActiveTab('matrix')}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${

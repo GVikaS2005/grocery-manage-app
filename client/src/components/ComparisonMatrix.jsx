@@ -14,6 +14,110 @@ import {
   Info
 } from 'lucide-react';
 
+const badgeMap = {
+  'Letákový trhák': 'Flyer Deal',
+  'Pilos kvalita': 'Pilos Quality',
+  'Clubcard zľava': 'Clubcard Discount',
+  'Fresh akcia': 'Fresh Deal',
+  'K-Classic': 'K-Classic',
+  'Lidl Plus kupón': 'Lidl Plus Coupon',
+  'Tesco akcia': 'Tesco Sale',
+  'Kaufland Card': 'Kaufland Card',
+  'Čerstvosť': 'Fresh Choice',
+  'Super cena Clubcard': 'Clubcard Deal',
+  'Slovenské': 'Slovak Produce',
+  'Mäsiarsky pult': 'Butcher Counter',
+  'Super Sobota': 'Super Saturday',
+  'Slovenská Farma': 'Slovak Farm',
+  'Top akcia': 'Top Deal',
+  'Výhodná kúpa': 'Great Buy',
+  'Mäso z pultu': 'Fresh Counter Meat',
+  'Zľava týždňa': 'Discount of the Week',
+  'Tesco ponuka': 'Tesco Offer',
+  'Z našej pekárne': 'In-store Bakery',
+  'Vždy čerstvé': 'Always Fresh',
+  'Tesco pekáreň': 'Tesco Bakery',
+  'Lokálna pekáreň': 'Local Bakery',
+  'Top cena': 'Top Price',
+  'Trhák': 'Weekly Deal',
+  'Čerstvý rohlík': 'Fresh Bread Roll',
+  'Trhák týždňa': 'Deal of the Week',
+  'Slovenská úroda': 'Slovak Harvest',
+  'Vitamínová bomba': 'Vitamin Boost',
+  'Akcia týždňa': 'Weekly Deal',
+  'Kaufland trhák': 'Kaufland Hit',
+  'Lidl výber': 'Lidl Choice',
+  'Fresh výhodne': 'Fresh Value',
+  'Najnižšia cena': 'Lowest Price',
+  'Super víkend': 'Super Weekend',
+  'Výhodné balenie': 'Value Pack',
+  'Rodinné vrece': 'Family Sack',
+  'Slovenská chuť': 'Slovak Taste',
+  'Pondelková zľava': 'Monday Deal',
+  'Farmársky kútik': 'Farmers Corner',
+  'Fresh trhák': 'Fresh Hit',
+  'Milsy akcia': 'Milsy Sale',
+  'Slovenský výrobca': 'Slovak Producer',
+  'Liptov zľava': 'Liptov Deal',
+  'Billa Bonus': 'Billa Bonus',
+  'Fresh ponuka': 'Fresh Offer',
+  'Kaufland akcia': 'Kaufland Sale',
+  'Lidl Plus bomba': 'Lidl Plus Steal',
+  'Slovenské srdce': 'Slovak Heart',
+  'Pilos tradícia': 'Pilos Tradition',
+  'Lokálny farmár': 'Local Farmer',
+  'Liptov týždeň': 'Liptov Week',
+  'Pilos Eidam': 'Pilos Edam',
+  'Karička akcia': 'Karicka Sale',
+  'Kaufland zľava': 'Kaufland Deal',
+  'Lidl Plus': 'Lidl Plus',
+  'Top akcia Fresh': 'Fresh Top Deal',
+  'Pondelková cena': 'Monday Price',
+  'Pikok Pure': 'Pikok Pure',
+  'Domáca kvalita': 'Home Quality',
+  'Pekárenský špeciál': 'Bakery Special',
+  'Čerstvo upečené': 'Freshly Baked',
+  'Tradičný recept': 'Traditional Recipe',
+  'Palma Raciol': 'Palma Raciol',
+  'Clubcard akcia': 'Clubcard Sale',
+  'Castello': 'Castello',
+  'Výhodná cena': 'Good Value',
+  'Fresh múka': 'Fresh Flour',
+  'Sladká ponuka': 'Sweet Offer',
+  'Mánya akcia': 'Manya Sale',
+  'Golden Sun': 'Golden Sun',
+  'Taliansky týždeň': 'Italian Week',
+  'Barilla akcia': 'Barilla Sale',
+  'Clubcard trhák': 'Clubcard Hit',
+  'Kaufland Card megazľava': 'Kaufland Card Mega Deal',
+  'Bellarom/Tchibo': 'Bellarom/Tchibo',
+  'Clubcard cena': 'Clubcard Price',
+  'Popradská akcia': 'Popradska Sale',
+  'Pivný festival': 'Beer Festival',
+  'Multipack': 'Multipack',
+  'Zľava Hurbanovo': 'Hurbanovo Deal',
+  'Slovenské pivo': 'Slovak Beer',
+  'Letákový hit': 'Flyer Hit',
+  'Svieža akcia': 'Fresh Offer',
+  'Fresh zľava': 'Fresh Discount',
+  'Slovenské osvieženie': 'Slovak Refreshment',
+  'Fresh cena': 'Fresh Price',
+  'Minerálka týždňa': 'Mineral Water of the Week',
+  'Fresh hit': 'Fresh Hit',
+  'Super akcia': 'Super Deal',
+  'Formil / Persil': 'Formil / Persil',
+  'Drogéria': 'Drugstore',
+  'Najnižšia cena Clubcard': 'Lowest Clubcard Price',
+  'W5 / Jar': 'W5 / Jar',
+  'Floralys': 'Floralys',
+  'Nová letáková bomba': 'New Flyer Steal'
+};
+
+const translateBadge = (badge, lang) => {
+  if (!badge || lang === 'sk') return badge;
+  return badgeMap[badge] || badge;
+};
+
 export default function ComparisonMatrix({
   matrixData,
   categories,
@@ -266,8 +370,8 @@ export default function ComparisonMatrix({
                             )}
 
                             {p.badge && (
-                              <span className="text-[9px] text-slate-500 font-medium truncate max-w-[90px] mt-0.5" title={p.badge}>
-                                {p.badge}
+                              <span className="text-[9px] text-slate-500 font-medium truncate max-w-[90px] mt-0.5" title={translateBadge(p.badge, lang)}>
+                                {translateBadge(p.badge, lang)}
                               </span>
                             )}
                           </div>

@@ -88,13 +88,17 @@ export default function SmartBasket({
           <div>
             <div className="inline-flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold px-3 py-1 rounded-full mb-3">
               <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
-              <span>Optimalizovaný nákupný plán</span>
+              <span>{t.optimizedPlanBadge}</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               {t.smartBasketTitle}
             </h2>
             <p className="text-sm text-emerald-100/80 mt-1 max-w-xl">
-              {recommendation}
+              {lang === 'en'
+                ? (optimalSplit.length > 1
+                    ? `By splitting your list across ${optimalSplit.length} stores you save ${totalSaved} € compared to regular retail prices.`
+                    : `All selected items are cheapest at ${optimalSplit[0]?.chainName}.`)
+                : recommendation}
             </p>
           </div>
 
@@ -128,7 +132,7 @@ export default function SmartBasket({
             className="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold px-4 py-2 rounded-xl text-xs transition shadow-md cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Skontrolovať úsporu (Osláviť)</span>
+            <span>{t.celebrateSavings}</span>
           </button>
 
           <button
@@ -157,7 +161,7 @@ export default function SmartBasket({
             <span>{t.splitByStores}</span>
           </h3>
           <span className="text-xs text-slate-500 font-medium">
-            Kúpte položky v týchto obchodoch pre maximálnu úsporu
+            {lang === 'sk' ? 'Kúpte položky v týchto obchodoch pre maximálnu úsporu' : 'Buy items at these stores for maximum savings'}
           </span>
         </div>
 
@@ -178,12 +182,12 @@ export default function SmartBasket({
                       {split.chainName}
                     </span>
                     <span className="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      {split.itemsCount} ks tovaru
+                      {split.itemsCount} {t.itemsInStore}
                     </span>
                   </div>
 
                   <div className="text-right">
-                    <span className="text-[10px] text-white/80 block font-medium">Spolu v tomto obchode</span>
+                    <span className="text-[10px] text-white/80 block font-medium">{t.storeSubtotal}</span>
                     <span className="text-lg font-black font-mono">
                       {split.subtotal.toFixed(2)} €
                     </span>
@@ -294,16 +298,16 @@ export default function SmartBasket({
           {/* Optimal split tile */}
           <div className="p-3.5 rounded-2xl bg-emerald-50 border-2 border-emerald-500 text-center relative shadow-xs">
             <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
-              Najlacnejšie
+              {t.cheaperOptimal}
             </span>
             <span className="text-[11px] font-bold text-emerald-900 block mt-1">
-              Smart Split (Kombinácia)
+              {lang === 'sk' ? 'Smart Split (Kombinácia)' : 'Smart Split (Optimal)'}
             </span>
             <span className="text-xl font-black font-mono text-emerald-700 block mt-1">
               {totalOptimalCost.toFixed(2)} €
             </span>
             <span className="text-[10px] font-semibold text-emerald-600 mt-0.5 block">
-              Základ porovnania
+              {t.comparisonBase}
             </span>
           </div>
 
@@ -327,7 +331,7 @@ export default function SmartBasket({
                   {comp.totalCost.toFixed(2)} €
                 </span>
                 <span className="text-[10px] font-bold text-rose-600 mt-0.5 block">
-                  +{comp.diffVsOptimal.toFixed(2)} € drahšie
+                  +{comp.diffVsOptimal.toFixed(2)} € {t.moreExpensive}
                 </span>
               </div>
             );

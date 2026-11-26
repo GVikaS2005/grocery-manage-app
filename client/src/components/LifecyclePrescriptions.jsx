@@ -42,7 +42,11 @@ export default function LifecyclePrescriptions({
           <div>
             <div className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-800 text-xs font-bold px-3 py-1 rounded-full mb-3 border border-amber-200">
               <Clock className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
-              <span>Automatický monitor platnosti letákov (Active Cron Engine)</span>
+              <span>
+                {lang === 'sk'
+                  ? 'Automatický monitor platnosti letákov (Active Cron Engine)'
+                  : 'Automated Leaflet Expiry Monitor (Active Cron Engine)'}
+              </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               {t.lifecycleTitle}
@@ -63,7 +67,9 @@ export default function LifecyclePrescriptions({
               <span>{t.simulateRotationBtn}</span>
             </button>
             <span className="text-[10px] text-slate-400 font-medium">
-              Okamžite otestuje expiráciu a vygeneruje nový zoznam
+              {lang === 'sk'
+                ? 'Okamžite otestuje expiráciu a vygeneruje nový zoznam'
+                : 'Instantly tests flyer expiry & generates fresh plan'}
             </span>
           </div>
         </div>
@@ -74,7 +80,7 @@ export default function LifecyclePrescriptions({
           <div className="bg-slate-900 text-white rounded-2xl p-5 border border-slate-800 relative overflow-hidden">
             <div className="flex items-center justify-between gap-2 mb-3">
               <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                ● Aktívne ponuky v obchodoch
+                {t.activeOffersBadge}
               </span>
               <span className="text-xs font-mono text-slate-400">
                 {lifecycle?.currentCycleId}
@@ -82,17 +88,17 @@ export default function LifecyclePrescriptions({
             </div>
 
             <h4 className="text-lg font-bold text-white mb-1">
-              {lifecycle?.currentCycleName || 'Týždenné letáky'}
+              {lifecycle?.currentCycleName || (lang === 'sk' ? 'Týždenné letáky' : 'Weekly Flyers')}
             </h4>
             <p className="text-xs text-slate-400 mb-4">
-              Platnosť: {new Date(lifecycle?.validFrom).toLocaleDateString()} — {new Date(lifecycle?.validUntil).toLocaleDateString()} (do 23:59)
+              {lang === 'sk' ? 'Platnosť:' : 'Validity:'} {new Date(lifecycle?.validFrom).toLocaleDateString()} — {new Date(lifecycle?.validUntil).toLocaleDateString()}
             </p>
 
             {/* Countdown Clock */}
             <div className="bg-slate-800/80 rounded-xl p-3 border border-slate-700 flex items-center justify-between">
               <span className="text-xs text-slate-300 font-medium flex items-center gap-1.5">
                 <Clock className="w-4 h-4 text-amber-400" />
-                <span>Zostávajúci čas do rotácie:</span>
+                <span>{t.timeToRotation}</span>
               </span>
               <span className="font-mono font-extrabold text-base text-amber-300">
                 {time.formatted}
@@ -105,7 +111,7 @@ export default function LifecyclePrescriptions({
             <div>
               <div className="flex items-center justify-between gap-2 mb-3">
                 <span className="bg-blue-100 text-blue-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-blue-200">
-                  Budúci týždeň (Pripravené)
+                  {t.nextWeekBadge}
                 </span>
                 <span className="text-xs font-mono text-slate-400">
                   {lifecycle?.upcomingCycleId}
@@ -113,14 +119,16 @@ export default function LifecyclePrescriptions({
               </div>
 
               <h4 className="text-lg font-bold text-slate-900 mb-1">
-                {lifecycle?.upcomingCycleName || 'Pripravované ponuky'}
+                {lifecycle?.upcomingCycleName || (lang === 'sk' ? 'Pripravované ponuky' : 'Upcoming Deals')}
               </h4>
               <p className="text-xs text-slate-500 mb-4">
-                Platnosť: {new Date(lifecycle?.upcomingValidFrom).toLocaleDateString()} — {new Date(lifecycle?.upcomingValidUntil).toLocaleDateString()}
+                {lang === 'sk' ? 'Platnosť:' : 'Validity:'} {new Date(lifecycle?.upcomingValidFrom).toLocaleDateString()} — {new Date(lifecycle?.upcomingValidUntil).toLocaleDateString()}
               </p>
 
               <div className="bg-white rounded-xl p-3 border border-slate-200 text-xs text-slate-600">
-                💡 Po uplynutí aktuálneho času systém automaticky prepne tieto ceny ako aktívne a prepíše nákupný zoznam.
+                {lang === 'sk'
+                  ? '💡 Po uplynutí aktuálneho času systém automaticky prepne tieto ceny ako aktívne a prepíše nákupný zoznam.'
+                  : '💡 When the current cycle ends, the system automatically activates these prices and refreshes your prescribed basket.'}
               </div>
             </div>
           </div>
@@ -134,13 +142,15 @@ export default function LifecyclePrescriptions({
             <div>
               <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full mb-2">
                 <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Inteligentný algoritmus nákupu</span>
+                <span>{t.smartAlgoBadge}</span>
               </div>
               <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
                 {t.prescribedTitle}
               </h3>
               <p className="text-xs text-slate-500 mt-1 max-w-xl">
-                {prescription.summary}
+                {lang === 'sk'
+                  ? prescription.summary
+                  : `Save up to ${prescription.totalSavings?.toFixed(2)} € (${prescription.savingsPercent || prescription.totalSavingsPercent}%) by splitting your basket according to this week's verified leaflets.`}
               </p>
             </div>
 
@@ -157,27 +167,27 @@ export default function LifecyclePrescriptions({
           {/* Metric Summary */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
             <div>
-              <span className="text-[10px] text-slate-500 font-medium block">Počet odporúčaných položiek</span>
+              <span className="text-[10px] text-slate-500 font-medium block">{t.prescribedItemsCount}</span>
               <span className="text-xl font-black text-slate-900 font-mono">
-                {prescription.totalItemsCount} ks
+                {prescription.totalItemsCount} {t.itemsInStore}
               </span>
             </div>
             <div>
-              <span className="text-[10px] text-slate-500 font-medium block">Odhadovaná celková cena</span>
+              <span className="text-[10px] text-slate-500 font-medium block">{t.prescribedEstCost}</span>
               <span className="text-xl font-black text-emerald-700 font-mono">
                 {prescription.totalPrescribedCost.toFixed(2)} €
               </span>
             </div>
             <div>
-              <span className="text-[10px] text-slate-500 font-medium block">Bežná maloobchodná cena</span>
+              <span className="text-[10px] text-slate-500 font-medium block">{t.prescribedRetailCost}</span>
               <span className="text-xl font-black text-slate-400 line-through font-mono">
                 {prescription.totalRegularCost.toFixed(2)} €
               </span>
             </div>
             <div>
-              <span className="text-[10px] text-slate-500 font-medium block">Garantovaná úspora</span>
+              <span className="text-[10px] text-slate-500 font-medium block">{t.prescribedGuaranteedSavings}</span>
               <span className="text-xl font-black text-emerald-600 font-mono">
-                +{prescription.totalSavings.toFixed(2)} € (-{prescription.totalSavingsPercent}%)
+                +{prescription.totalSavings.toFixed(2)} € (-{prescription.totalSavingsPercent || prescription.savingsPercent}%)
               </span>
             </div>
           </div>
@@ -227,7 +237,7 @@ export default function LifecyclePrescriptions({
                 </div>
 
                 <div className="pt-3 mt-3 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500">
-                  <span>Úspora v tomto obchode:</span>
+                  <span>{t.savingsInStore}</span>
                   <span className="font-bold text-emerald-600">+{split.savings.toFixed(2)} €</span>
                 </div>
               </div>

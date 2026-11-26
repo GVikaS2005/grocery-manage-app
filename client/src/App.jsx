@@ -7,6 +7,7 @@ import LifecyclePrescriptions from './components/LifecyclePrescriptions';
 import LeafletsView from './components/LeafletsView';
 import NotificationBanner from './components/NotificationBanner';
 import FlyerAnalyzerModal from './components/FlyerAnalyzerModal';
+import WeeklySmartFlyer from './components/WeeklySmartFlyer';
 import { translations } from './data/translations';
 import { api } from './services/api';
 import confetti from 'canvas-confetti';
@@ -16,7 +17,7 @@ export default function App() {
   const t = translations[lang] || translations.sk;
 
   // Navigation
-  const [activeTab, setActiveTab] = useState('matrix');
+  const [activeTab, setActiveTab] = useState('flyer');
 
   // Location
   const [cities, setCities] = useState([
@@ -388,6 +389,18 @@ export default function App() {
 
       {/* App Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex-1 w-full space-y-6">
+        {activeTab === 'flyer' && (
+          <WeeklySmartFlyer
+            matrixItems={matrixItems}
+            basket={basket}
+            onAddToBasket={handleAddToBasket}
+            onRemoveFromBasket={handleRemoveFromBasket}
+            lifecycle={lifecycle}
+            t={t}
+            lang={lang}
+          />
+        )}
+
         {activeTab === 'matrix' && (
           <ComparisonMatrix
             matrixData={matrixItems}

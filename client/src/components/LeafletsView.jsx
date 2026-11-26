@@ -26,7 +26,7 @@ export default function LeafletsView({
           <div>
             <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-800 text-xs font-bold px-3 py-1 rounded-full mb-2">
               <Globe className="w-3.5 h-3.5 text-blue-600" />
-              <span>Verejné oficiálne zdroje letákov (Slovakia)</span>
+              <span>{t.publicSourcesBadge}</span>
             </div>
             <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
               {t.leafletsTitle}
@@ -60,7 +60,9 @@ export default function LeafletsView({
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>
-                Úspešne zosynchronizovaných <strong>{lastSyncResult.chainsSynced} obchodných reťazcov</strong>. Všetky letáky sú aktuálne k dnešnému dňu.
+                {lang === 'sk'
+                  ? `Úspešne zosynchronizovaných ${lastSyncResult.chainsSynced} obchodných reťazcov. Všetky letáky sú aktuálne k dnešnému dňu.`
+                  : `Successfully verified and synced ${lastSyncResult.chainsSynced} supermarket chains. All flyers are up to date.`}
               </span>
             </div>
             <span className="font-mono font-bold text-[11px] text-emerald-700 bg-white px-2 py-0.5 rounded border border-emerald-200">
@@ -109,7 +111,7 @@ export default function LeafletsView({
                 <div className="flex items-center justify-between text-xs text-slate-500 border-b border-slate-100 pb-3">
                   <span className="flex items-center gap-1">
                     <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{leaflet.pagesCount} strán akcií</span>
+                    <span>{leaflet.pagesCount} {t.pagesOfDeals}</span>
                   </span>
                   <span className="font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[11px] font-bold">
                     {leaflet.source}
