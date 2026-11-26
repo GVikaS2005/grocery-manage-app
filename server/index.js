@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -205,8 +206,11 @@ app.get('/api/database/status', async (req, res) => {
 // -------------------------------------------------------------
 // 7. SERVE STATIC FRONTEND (dist)
 // -------------------------------------------------------------
-const distPath = path.join(__dirname, '../client/dist');
-if (fs.existsSync(distPath)) {
+const rootDist = path.join(__dirname, '../dist');
+const clientDist = path.join(__dirname, '../client/dist');
+const distPath = fs.existsSync(rootDist) ? rootDist : (fs.existsSync(clientDist) ? clientDist : null);
+
+if (distPath) {
   app.use(express.static(distPath));
   app.use((req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
