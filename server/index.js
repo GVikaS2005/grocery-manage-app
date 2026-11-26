@@ -10,6 +10,7 @@ const lifecycleEngine = require('./services/lifecycleEngine');
 const optimizerService = require('./services/optimizerService');
 const scraperService = require('./services/scraperService');
 const flyerAnalyzerModel = require('./services/flyerAnalyzerModel');
+const supabaseService = require('./services/supabaseService');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -174,6 +175,31 @@ app.post('/api/flyers/analyze', async (req, res) => {
 
 app.get('/api/flyers/stats', (req, res) => {
   res.json(flyerAnalyzerModel.getStats());
+});
+
+// -------------------------------------------------------------
+// 8. DATABASE & SUPABASE CONNECTION STATUS
+// -------------------------------------------------------------
+app.get('/api/database/status', async (req, res) => {
+  const configured = supabaseService.isConfigured();
+  if (!configured) {
+    return res.json({
+      success: true,
+      provider: 'supabase',
+      configured: false,
+      mode: 'in-memory-high-fidelity-catalog',
+      message: 'Supabase credentials not configured in environment. The application is running using the local high-fidelity Slovak grocery catalog.'
+    });
+  }
+
+  const check = await supabaseService.checkConnection();
+  res.json({
+    success: true,
+    provider: 'supabase',
+    configured: true,
+    connected: check.connected,
+    details: check
+  });
 });
 
 // -------------------------------------------------------------
