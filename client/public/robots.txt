@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://grocery-manage-app-production.up.railway.app/sitemap.xml
