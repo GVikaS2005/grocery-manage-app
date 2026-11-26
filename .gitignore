@@ -1,4 +1,4 @@
-# Dependencies
+# Node.js & Web Dependencies
 node_modules/
 client/node_modules/
 
@@ -22,6 +22,17 @@ lerna-debug.log*
 .DS_Store
 Thumbs.db
 
-# IDE
+# IDE & Editors
 .vscode/
 .idea/
+
+# Python & Virtual Environments
+__pycache__/
+*.py[codz]
+*$py.class
+.venv/
+env/
+venv/
+*.egg-info/
+dist/
+build/
