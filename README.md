@@ -1,4 +1,6 @@
-# SupaGrocer SK 🛒🇸🇰
+# grocery-manage-app (SupaGrocer SK 🛒🇸🇰)
+> This application is designed for tracking stores and their discounts only in Slovakia. You can use this open source project and develop it for your area or country.
+
 ### Smart Grocery Deal & Leaflet Tracker with Automated Flyer Lifecycle Rotation
 
 A web application designed for users in Slovakia (and surrounding regions) to track, compare, and optimize grocery shopping across major supermarket chains: **Kaufland, Lidl, Billa, Tesco, and FRESH / FRESH Plus**, as well as shopping malls.
